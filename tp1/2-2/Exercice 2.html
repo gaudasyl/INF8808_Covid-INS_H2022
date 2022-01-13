@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <title> Exercice 2 </title>
+        <script type="text/javascript" src="Exercice%202_files/d3.js"></script>
+        <style>
+            svg  {border-style: solid;
+            border-color: black;}
+        </style>
+    </head>
+    <body>
+        <div class="énoncé">
+            <p> Le but de ce chapitre est de se familiariser avec plusieurs formes vectorielles simples et de les dessiners sur un canva </p>
+            <p> Ce deuxième exercice introduit les notions de superposition. Il vous est demandé de faire le travail suivant : </p>
+            <ol>
+                <li> Dessiner un disque bleu au centre du canvas de rayon 50 pixels </li>
+                <li> Dessiner un rectangle noir rempli de hauteur 75 pixels et de largeur 50 pixels en haut à gauche du canvas </li>
+                <li> Dessiner un carré rouge rempli de côté 50 pixels juste à droite du rectangle noir </li>
+                <li> Dessiner une ligne jaune traversant tout le canvas en diagonale (haut-gauche / bas-droite) d'épaisseur 5 pixels.
+                    La ligne doit être au-dessus des autres dessins
+                </li>
+                <li> Dessiner une ligne verte traversant tout le canvas en diagonale (haut-gauche / bas-droite) d'épaisseur 5 pixels.
+                    La ligne doit être en-dessous des autres dessins
+                </li>
+            </ol>
+        </div>
+        <script>
+            // Création d'un canvas svg de largeur 400 et de hauteur 400
+            var canvas = d3.select("body")
+            			   .append("svg")
+            			   .attr("width",400)
+            			   .attr("height", 400);
+
+            canvas.append('line')
+                .attr('x1', 0)
+                .attr('y1', 0)
+                .attr('x2', 400)
+                .attr('y2', 400)
+                .attr('stroke-width', 5)
+                .attr('stroke', 'green')
+
+            canvas.append('circle')
+                .attr('r', 50)
+                .attr('cx', 200)
+                .attr('cy', 200)
+                .attr('fill', 'blue')
+            
+            canvas.append('rect')
+                .attr('width', 50)
+                .attr('height', 75)
+            
+            canvas.append('rect')
+                .attr('x', 50)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('fill', 'red')
+            
+            canvas.append('line')
+                .attr('x1', 400)
+                .attr('y1', 0)
+                .attr('x2', 0)
+                .attr('y2', 400)
+                .attr('stroke-width', 5)
+                .attr('stroke', 'yellow')
+
+        </script>
+    
+
+</body></html>
