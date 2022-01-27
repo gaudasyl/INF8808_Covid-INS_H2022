@@ -7,7 +7,10 @@
  * @param {number} width The width of the graph
  */
 export function updateGroupXScale (scale, data, width) {
-  // TODO : Set the domain and range of the groups' x scale
+  var acts = data.map((act) => act["Act"])  
+  scale
+    .domain(acts)
+    .range([0, width])
 }
 
 /**
@@ -19,6 +22,15 @@ export function updateGroupXScale (scale, data, width) {
  */
 export function updateYScale (scale, data, height) {
   // TODO : Set the domain and range of the graph's y scale
+  var max = 0
+  data.forEach(act => {
+    act["Players"].forEach(player => {
+        max = Math.max(player["Count"], max)
+      })
+    })
+  scale
+    .domain([max, 0])
+    .range([0, height])
 }
 
 /**
