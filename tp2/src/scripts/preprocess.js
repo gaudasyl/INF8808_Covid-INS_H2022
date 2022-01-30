@@ -141,7 +141,7 @@ export function replaceOthers (data, top) {
       }
       // Add the new player "Others" with the according line count
       let playerObject = {
-        Player: 'Others',
+        Player: 'Other',
         Count: otherLinesCount
       }
       currentAct.Players.push(playerObject)    

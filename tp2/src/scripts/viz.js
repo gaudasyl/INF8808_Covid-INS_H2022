@@ -43,11 +43,11 @@ export function updateYScale (scale, data, height) {
 export function createGroups (data, x) {
   // TODO : Create the groups
   d3.select('#graph-g')
-  .selectAll('.group')
-  .data(data)
-  .join('g')
-  .attr('class', 'group')
-  .attr('transform', group => `translate(${x(group.Act)})`)
+    .selectAll('.group')
+    .data(data)
+    .join('g')
+    .attr('class', 'group')
+    .attr('transform', group => `translate(${x(group.Act)})`)
 }
 
 /**
@@ -76,5 +76,5 @@ export function drawBars (y, xSubgroup, players, height, color, tip) {
     .attr('y', d => y(d.count))
     .attr('width', xSubgroup.bandwidth())
     .attr('height', d => height - y(d.count))
-    .style('fill', d => color(d.player))    
+    .style('fill', d => {console.log(color(d.player), d);return color(d.player)})   
 }
