@@ -76,5 +76,5 @@ export function drawBars (y, xSubgroup, players, height, color, tip) {
     .attr('y', d => y(d.count))
     .attr('width', xSubgroup.bandwidth())
     .attr('height', d => height - y(d.count))
-    .style('fill', d => {console.log(color(d.player), d);return color(d.player)})   
+    .style('fill', d => color(d.player))   
 }
