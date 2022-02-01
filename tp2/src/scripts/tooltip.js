@@ -1,3 +1,5 @@
+import d3 from "d3"
+
 /**
  * Defines the contents of the tooltip.
  *
@@ -15,5 +17,9 @@ export function getContents (d) {
       + A bold label for the player's line count
         followed by the number of lines
   */
-  return ''
+  var tooltip = `<div id='tooltip-title'> Act ${d.act} </div> <div></div>` +
+  `<div class='tooltip-value'> <span style='font-weight:bold'>Player : </span> ${d.player}</div>` +
+  `<div class='tooltip-value'> <span style='font-weight:bold'>Count : </span> ${d.count}</div>`
+  
+  return tooltip
 }

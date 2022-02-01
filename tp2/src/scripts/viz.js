@@ -62,8 +62,7 @@ export function createGroups (data, x) {
  */
 export function drawBars (y, xSubgroup, players, height, color, tip) {
   // TODO : Draw the bars
-
-  d3.select('#graph-g')
+  var bars = d3.select('#graph-g')
     .selectAll('.group')
     .selectAll('rect')
     .data(data => {
@@ -76,5 +75,9 @@ export function drawBars (y, xSubgroup, players, height, color, tip) {
     .attr('y', d => y(d.count))
     .attr('width', xSubgroup.bandwidth())
     .attr('height', d => height - y(d.count))
-    .style('fill', d => color(d.player))   
+    .style('fill', d => color(d.player))
+
+  bars.on("mouseover", tip.show)
+      .on("mouseout", tip.hide)
+    
 }
