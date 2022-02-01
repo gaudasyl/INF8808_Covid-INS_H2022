@@ -17,7 +17,7 @@ export function getContents (d) {
       + A bold label for the player's line count
         followed by the number of lines
   */
-  var tooltip = `<div id='tooltip-title'> Act ${d.act} </div> </br>` +
+  let tooltip = `<div id='tooltip-title'> Act ${d.act} </div> </br>` +
   `<div class='tooltip-value'> <span style='font-weight:bold'>Player : </span> ${d.player}</div>` +
   `<div class='tooltip-value'> <span style='font-weight:bold'>Count : </span> ${d.count}</div>`
   
