@@ -147,6 +147,5 @@ export function replaceOthers (data, top) {
       currentAct.Players.push(playerObject)    
     }
   )
-  console.log(data)
   return data
 }

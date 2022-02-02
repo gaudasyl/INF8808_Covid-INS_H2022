@@ -7,7 +7,7 @@
  * @param {number} width The width of the graph
  */
 export function updateGroupXScale (scale, data, width) {
-  var acts = data.map((act) => act["Act"])  
+  let acts = data.map((act) => act["Act"])  
   scale
     .domain(acts)
     .range([0, width])
@@ -22,7 +22,7 @@ export function updateGroupXScale (scale, data, width) {
  */
 export function updateYScale (scale, data, height) {
   // TODO : Set the domain and range of the graph's y scale
-  var max = 0
+  let max = 0
   data.forEach(act => {
     act["Players"].forEach(player => {
         max = Math.max(player["Count"], max)
@@ -62,7 +62,7 @@ export function createGroups (data, x) {
  */
 export function drawBars (y, xSubgroup, players, height, color, tip) {
   // TODO : Draw the bars
-  var bars = d3.select('#graph-g')
+  let bars = d3.select('#graph-g')
     .selectAll('.group')
     .selectAll('rect')
     .data(data => {
