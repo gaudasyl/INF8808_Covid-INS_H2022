@@ -8,15 +8,14 @@
  * @returns {object[]} The dataset with properly capitalized names
  */
 export function cleanNames (data) {
-
   // Uppercasing the first letter than lowercasing the rest of the text
   data.forEach(
     (currentData) => {
       currentData.Player = currentData.Player[0].toUpperCase() + currentData.Player.slice(1).toLowerCase()
     }
-  );
+  )
 
-  return data;
+  return data
 }
 
 /**
@@ -26,23 +25,22 @@ export function cleanNames (data) {
  * @returns {string[]} The names of the top 5 players with most lines
  */
 export function getTopPlayers (data) {
-  
   // Count for each player the number of lines.
-  let lineCounts = {};
+  let lineCounts = {}
   data.forEach(
     (currentData) => {
       currentData.Player in lineCounts ? lineCounts[currentData.Player]++ : lineCounts[currentData.Player] = 1;
     }
-  );
+  )
 
   // Convert dictionary to list, then perform sorting, slice to get only top 5 and finally drop the line count.
   let topFivePlayers = Object.keys(lineCounts).map((player) => {return [player, lineCounts[player]]})
-    .sort((a,b) => { return b[1] - a[1] })
-    .slice(0,5)
-    .map((currentData) => {return currentData[0]});
+    .sort((a, b) => { return b[1] - a[1] })
+    .slice(0, 5)
+    .map((currentData) => { return currentData[0] })
 
   // Return only the names of the top 5 players
-    return topFivePlayers
+  return topFivePlayers
 }
 
 /**
@@ -69,45 +67,43 @@ export function getTopPlayers (data) {
  * @returns {object[]} The nested data set grouping the line count by player and by act
  */
 export function summarizeLines (data) {
-  
   // Instantiate an empty data structure
-  let nestedData = [];
+  let nestedData = []
 
   data.forEach(
     (currentLine) => {
       // Define an object structure to simplify further additions to nested data
       let playerObject = {
-        Player: "playerName",
-        Count: 1 
-      };
+        Player: 'playerName',
+        Count: 1
+      }
 
       // Using indices to make the link with our acts
-      let currentAct = nestedData[currentLine.Act - 1];
+      let currentAct = nestedData[currentLine.Act - 1]
 
       // If the act has not already been added to our nested dataset, add it
       if (!currentAct) {
         // Setup the name of the player before adding it
-        playerObject.Player = currentLine.Player;
+        playerObject.Player = currentLine.Player
 
         // Creating a nested structure for the current act and the current player
         let actObject = {
           Act: currentLine.Act,
           Players: [playerObject]
-        };
+        }
 
         // Adding it to the global structure
-        nestedData.push(actObject);
-      
+        nestedData.push(actObject)
       } else {
         // Get the current player in the current act
         let currentPlayer = currentAct.Players.find(data => data.Player === currentLine.Player);
-        
+
         // If the player is already present, just increment his count
-        if (currentPlayer){ currentPlayer.Count++; } 
+        if (currentPlayer) { currentPlayer.Count++ }
         // Otherwise, add the player to the current act nested structure
         else {
-          playerObject.Player = currentLine.Player;
-          currentAct.Players.push(playerObject);
+          playerObject.Player = currentLine.Player
+          currentAct.Players.push(playerObject)
         }
       }
     }
@@ -125,18 +121,17 @@ export function summarizeLines (data) {
  * @returns {object[]} The dataset with players not in the top 5 summarized as 'Other'
  */
 export function replaceOthers (data, top) {
-
   // Iterating on each act
   data.forEach(
     (currentAct) => {
       // Initializing a count of all other character lines
-      let otherLinesCount = 0;
+      let otherLinesCount = 0
 
       // Iterate descending in order to not be disturbed by simultaneous deletion
-      for(let i = currentAct.Players.length - 1; i >= 0; --i){
-        if (top.indexOf(currentAct.Players[i].Player) === -1){
+      for (let i = currentAct.Players.length - 1; i >= 0; --i) {
+        if (top.indexOf(currentAct.Players[i].Player) === -1) {
           otherLinesCount += currentAct.Players[i].Count
-          currentAct.Players.splice(i,1)
+          currentAct.Players.splice(i, 1)
         }
       }
       // Add the new player "Others" with the according line count
@@ -144,7 +139,7 @@ export function replaceOthers (data, top) {
         Player: 'Other',
         Count: otherLinesCount
       }
-      currentAct.Players.push(playerObject)    
+      currentAct.Players.push(playerObject)
     }
   )
   return data

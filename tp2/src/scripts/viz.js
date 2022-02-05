@@ -8,7 +8,7 @@
  */
 export function updateGroupXScale (scale, data, width) {
   // Setting the x-axis scale according to the number of acts
-  let acts = data.map((act) => act["Act"])  
+  let acts = data.map((act) => act['Act'])
   scale
     .domain(acts)
     .range([0, width])
@@ -25,10 +25,10 @@ export function updateYScale (scale, data, height) {
   // Setting the y-axis scale according to the number stored in counts
   let max = 0
   data.forEach(act => {
-    act["Players"].forEach(player => {
-        max = Math.max(player["Count"], max)
-      })
+    act['Players'].forEach(player => {
+      max = Math.max(player['Count'], max)
     })
+  })
   scale
     .domain([max, 0])
     .range([0, height])
@@ -42,7 +42,7 @@ export function updateYScale (scale, data, height) {
  * @param {*} x The graph's x scale
  */
 export function createGroups (data, x) {
-  // Creating each group of data and translate them properly 
+  // Creating each group of data and translate them properly
   d3.select('#graph-g')
     .selectAll('.group')
     .data(data)
@@ -79,7 +79,6 @@ export function drawBars (y, xSubgroup, players, height, color, tip) {
     .style('fill', d => color(d.player))
 
   // Adding the tooltip trigger
-  bars.on("mouseover", tip.show)
-      .on("mouseout", tip.hide)
-    
+  bars.on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
 }
