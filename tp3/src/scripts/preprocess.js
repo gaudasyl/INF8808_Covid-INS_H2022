@@ -6,7 +6,16 @@
  */
 export function getNeighborhoodNames (data) {
   // TODO: Return the neihborhood names
-  return []
+  let neighborhoodsNames = []
+  data.forEach(
+    (currentData) => {
+      if(!((currentData.Arrond - 1) in neighborhoodsNames)) {
+        neighborhoodsNames.push(currentData.Arrond_Nom)
+      }
+    }
+  )
+  console.log(neighborhoodsNames)
+  return neighborhoodsNames
 }
 
 /**
@@ -19,11 +28,22 @@ export function getNeighborhoodNames (data) {
  */
 export function filterYears (data, start, end) {
   // TODO : Filter the data by years
-  return []
+  let filteredData = []
+  data.forEach(
+    (currentData) => {
+      const year = currentData.Date_Plantation.getFullYear()
+
+      if(start <= year && year <= end){
+        filteredData.push(currentData)
+      }
+    }
+  )
+  console.log (filteredData)
+  return filteredData
 }
 
 /**
- * Summarizes how any trees were planted each year in each neighborhood.
+ * Summarizes how many trees were planted each year in each neighborhood.
  *
  * @param {object[]} data The data set to use
  * @returns {object[]} A table of objects with keys 'Arrond_Nom', 'Plantation_Year' and 'Counts', containing
@@ -31,7 +51,32 @@ export function filterYears (data, start, end) {
  */
 export function summarizeYearlyCounts (data) {
   // TODO : Construct the required data table
-  return []
+  let yearlyCount = []
+  
+  data.forEach(
+    (currentData) => {
+
+      const year = currentData.Date_Plantation.getFullYear()
+
+      let newObj = {
+        Arrond_Nom: currentData.Arrond_Nom,
+        Plantation_Year: year,
+        Counts: 1
+      }
+      
+      let filter = yearlyCount.find(element => element.Arrond_Nom == currentData.Arrond_Nom && element.Plantation_Year == year)
+      if(filter ==  null){
+        yearlyCount.push(newObj)
+      }
+      else {
+        filter.Counts++;
+      }
+    
+    }
+  )
+
+  console.log(yearlyCount)
+  return yearlyCount
 }
 
 /**
