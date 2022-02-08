@@ -9,7 +9,8 @@ export function getNeighborhoodNames (data) {
   let neighborhoodsNames = []
   data.forEach(
     (currentData) => {
-      if(!((currentData.Arrond - 1) in neighborhoodsNames)) {
+      const found = neighborhoodsNames.find(name => name == currentData.Arrond_Nom)
+      if(!found) {
         neighborhoodsNames.push(currentData.Arrond_Nom)
       }
     }
@@ -93,5 +94,31 @@ export function summarizeYearlyCounts (data) {
  */
 export function fillMissingData (data, neighborhoods, start, end, range) {
   // TODO : Find missing data and fill with 0
-  return []
+  const myRange = range(start, end)
+
+  neighborhoods.forEach(
+    (name) => {
+      let nameData = data.filter(element => element.Arrond_Nom == name)
+      
+      myRange.forEach(
+        (year) => {
+          
+          let obj = nameData.find(element => element.Plantation_Year === year);
+          
+          if(obj == null){
+            let newObj = {
+              Arrond_Nom: name,
+              Plantation_Year: year,
+              Counts: 0
+            }
+            data.push(newObj)
+          }
+        } 
+      )
+
+      
+    }
+  )
+  console.log(data)
+  return data
 }
