@@ -6,7 +6,9 @@
  * @param {object[]} data The data to be displayed
  */
 export function setColorScaleDomain (colorScale, data) {
-  // TODO : Set domain of color scale
+  var max = d3.max(data, (data) => data.Counts)
+  var min = d3.min(data, (data) => data.Counts)
+  colorScale.domain([min, max])
 }
 
 /**
