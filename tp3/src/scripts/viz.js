@@ -7,11 +7,11 @@
  */
 export function setColorScaleDomain (colorScale, data) {
   // Getting the min and max values using d3 tools.
-  let max = d3.max(data, (data) => data.Counts)
-  let min = d3.min(data, (data) => data.Counts)
+  let maxValueCount = d3.max(data, (data) => data.Counts)
+  let minValueCount = d3.min(data, (data) => data.Counts)
 
   // Updating the xScale accordingly.
-  colorScale.domain([min, max])
+  colorScale.domain([minValueCount, maxValueCount])
 }
 
 /**
@@ -39,20 +39,8 @@ export function appendRects (data) {
  */
 export function updateXScale (xScale, data, width, range) {
   // Getting the min and max values using d3 tools.
-  let minValueYear = d3.min(
-    data.map(
-      (element) => {
-        return element.Plantation_Year
-      }
-    )
-  )
-  let maxValueYear = d3.max(
-    data.map(
-      (element) => {
-        return element.Plantation_Year
-      }
-    )
-  )
+  let minValueYear = d3.min(data, (data) => data.Plantation_Year)
+  let maxValueYear = d3.max(data, (data) => data.Plantation_Year)
 
   // Updating the xScale accordingly.
   xScale.domain(range(minValueYear,maxValueYear))
