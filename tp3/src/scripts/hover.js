@@ -1,3 +1,5 @@
+import { selectAll } from "d3"
+
 /**
  * Sets up an event handler for when the mouse enters and leaves the squares
  * in the heatmap. When the square is hovered, it enters the "selected" state.
@@ -14,6 +16,12 @@
  */
 export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, selectTicks, unselectTicks) {
   // TODO : Select the squares and set their event handlers
+  d3.selectAll('rect').on('mouseover', rectSelected)
+                      .on('mouseout', rectUnselected)
+
+  //add select Tick and unselectTicks to rect aswell ... dunno how to do... so for now it's on the ticks
+  d3.selectAll('.tick').on('mouseover', selectTicks)
+                       .on('mouseout', unselectTicks)
 }
 
 /**
@@ -31,6 +39,15 @@ export function rectSelected (element, xScale, yScale) {
   // TODO : Display the number of trees on the selected element
   // Make sure the nimber is centered. If there are 1000 or more
   // trees, display the text in white so it contrasts with the background.
+  d3.select(this).style('opacity', 0.75)
+  console.log(xScale)
+  console.log(yScale)
+  d3.select(this.parentNode).insert('text','rect')
+                            .text(element.Counts)
+                            .style('fill', element.Counts>=1000?'white':'black')
+                            //need to put the right position ... but scales are weird
+                            // .attr('x', (element) => xScale(element.Plantation_Year))
+                            // .attr('y', (element) => yScale(element.Arrond_Nom))
 }
 
 /**
@@ -44,7 +61,9 @@ export function rectSelected (element, xScale, yScale) {
  */
 export function rectUnselected (element) {
   // TODO : Unselect the element
-}
+    d3.select(this).style('opacity', 1.0)
+    d3.select(this.parentNode).select('text').remove()
+  }
 
 /**
  * Makes the font weight of the ticks texts with the given name and year bold.
@@ -54,6 +73,7 @@ export function rectUnselected (element) {
  */
 export function selectTicks (name, year) {
   // TODO : Make the ticks bold
+  d3.select(this).style('font-weight','bold')
 }
 
 /**
@@ -61,4 +81,5 @@ export function selectTicks (name, year) {
  */
 export function unselectTicks () {
   // TODO : Unselect the ticks
+  d3.select(this).style('font-weight','normal')
 }
