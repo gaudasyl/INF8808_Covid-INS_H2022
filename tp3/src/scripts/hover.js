@@ -16,12 +16,17 @@ import { selectAll } from "d3"
  */
 export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, selectTicks, unselectTicks) {
   // TODO : Select the squares and set their event handlers
-  d3.selectAll('rect').on('mouseover', rectSelected)
-                      .on('mouseout', rectUnselected)
+  d3.selectAll('rect').on('mouseover', function(element)
+                            {
+                              rectSelected(this, element, xScale, yScale);
+                              selectTicks(element.Arrond_Nom, element.Plantation_Year);
+                            })
+                      .on('mouseout', function(element, index)
+                      {
+                        rectUnselected(this, element);
+                        unselectTicks();
+                      })
 
-  //add select Tick and unselectTicks to rect aswell ... dunno how to do... so for now it's on the ticks
-  d3.selectAll('.tick').on('mouseover', selectTicks)
-                       .on('mouseout', unselectTicks)
 }
 
 /**
@@ -35,19 +40,22 @@ export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, se
  * @param {*} xScale The xScale to be used when placing the text in the square
  * @param {*} yScale The yScale to be used when placing the text in the square
  */
-export function rectSelected (element, xScale, yScale) {
+export function rectSelected (rect, element, xScale, yScale) {
   // TODO : Display the number of trees on the selected element
   // Make sure the nimber is centered. If there are 1000 or more
   // trees, display the text in white so it contrasts with the background.
-  d3.select(this).style('opacity', 0.75)
-  console.log(xScale)
-  console.log(yScale)
-  d3.select(this.parentNode).insert('text','rect')
+  d3.select(rect).style('opacity', 0.75)
+  let w = rect.width.baseVal.value
+  let h = rect.height.baseVal.value
+  d3.select(rect.parentNode).insert('text')
                             .text(element.Counts)
+                            .attr('x', xScale(element.Plantation_Year)+w/2)
+                            .attr('y', yScale(element.Arrond_Nom)+h/2)
                             .style('fill', element.Counts>=1000?'white':'black')
-                            //need to put the right position ... but scales are weird
-                            // .attr('x', (element) => xScale(element.Plantation_Year))
-                            // .attr('y', (element) => yScale(element.Arrond_Nom))
+                            .style('dominant-baseline', 'middle')
+                            .style('text-anchor','middle')
+                            .style('pointer-events', 'none')
+                            .style('text-alignement', 'center')
 }
 
 /**
@@ -59,10 +67,10 @@ export function rectSelected (element, xScale, yScale) {
  *
  * @param {*} element The selection of rectangles in "selected" state
  */
-export function rectUnselected (element) {
+export function rectUnselected (rect, element) {
   // TODO : Unselect the element
-    d3.select(this).style('opacity', 1.0)
-    d3.select(this.parentNode).select('text').remove()
+    d3.select(rect).style('opacity', 1.0)
+    d3.select(rect.parentNode).select('text').remove()
   }
 
 /**
@@ -73,7 +81,8 @@ export function rectUnselected (element) {
  */
 export function selectTicks (name, year) {
   // TODO : Make the ticks bold
-  d3.select(this).style('font-weight','bold')
+  d3.select('.y.axis').selectAll('.tick').filter((n)=>{return n==name}).select('text').style('font-weight','bold')
+  d3.select('.x.axis').selectAll('.tick').filter((y)=>{return y==year}).select('text').style('font-weight','bold')
 }
 
 /**
@@ -81,5 +90,5 @@ export function selectTicks (name, year) {
  */
 export function unselectTicks () {
   // TODO : Unselect the ticks
-  d3.select(this).style('font-weight','normal')
+  d3.selectAll('.tick').select('text').style('font-weight','normal')
 }
