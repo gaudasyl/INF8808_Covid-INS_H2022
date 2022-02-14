@@ -15,7 +15,6 @@ import { selectAll } from "d3"
  * @param {Function} unselectTicks The function to call to remove "selected" mode from the ticks
  */
 export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, selectTicks, unselectTicks) {
-  // TODO : Select the squares and set their event handlers
   d3.selectAll('rect').on('mouseover', function(element)
                             {
                               rectSelected(this, element, xScale, yScale);
@@ -41,9 +40,6 @@ export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, se
  * @param {*} yScale The yScale to be used when placing the text in the square
  */
 export function rectSelected (rect, element, xScale, yScale) {
-  // TODO : Display the number of trees on the selected element
-  // Make sure the nimber is centered. If there are 1000 or more
-  // trees, display the text in white so it contrasts with the background.
   d3.select(rect).style('opacity', 0.75)
   let w = rect.width.baseVal.value
   let h = rect.height.baseVal.value
@@ -68,7 +64,6 @@ export function rectSelected (rect, element, xScale, yScale) {
  * @param {*} element The selection of rectangles in "selected" state
  */
 export function rectUnselected (rect, element) {
-  // TODO : Unselect the element
     d3.select(rect).style('opacity', 1.0)
     d3.select(rect.parentNode).select('text').remove()
   }
@@ -80,7 +75,6 @@ export function rectUnselected (rect, element) {
  * @param {number} year The year associated with the tick text to make bold
  */
 export function selectTicks (name, year) {
-  // TODO : Make the ticks bold
   d3.select('.y.axis').selectAll('.tick').filter((n)=>{return n==name}).select('text').style('font-weight','bold')
   d3.select('.x.axis').selectAll('.tick').filter((y)=>{return y==year}).select('text').style('font-weight','bold')
 }
@@ -89,6 +83,5 @@ export function selectTicks (name, year) {
  * Returns the font weight of all ticks to normal.
  */
 export function unselectTicks () {
-  // TODO : Unselect the ticks
   d3.selectAll('.tick').select('text').style('font-weight','normal')
 }
