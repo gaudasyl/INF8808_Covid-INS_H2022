@@ -15,7 +15,7 @@ import { selectAll } from "d3"
  * @param {Function} unselectTicks The function to call to remove "selected" mode from the ticks
  */
 export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, selectTicks, unselectTicks) {
-  d3.selectAll('rect').on('mouseover', function(element)
+  d3.selectAll("#graph-g").selectAll('rect').on('mouseover', function(element)
                             {
                               rectSelected(this, element, xScale, yScale);
                               selectTicks(element.Arrond_Nom, element.Plantation_Year);
