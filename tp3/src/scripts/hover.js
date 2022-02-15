@@ -15,9 +15,9 @@ import { selectAll } from "d3"
  * @param {Function} unselectTicks The function to call to remove "selected" mode from the ticks
  */
 export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, selectTicks, unselectTicks) {
-  d3.selectAll("#graph-g").selectAll('rect').on('mouseover', function(element)
+  d3.selectAll("#graph-g").selectAll('g').on('mouseover', function(element)
                             {
-                              rectSelected(this, element, xScale, yScale);
+                              rectSelected(d3.select(this), xScale, yScale);
                               selectTicks(element.Arrond_Nom, element.Plantation_Year);
                             })
                       .on('mouseout', function(element, index)
@@ -39,11 +39,11 @@ export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, se
  * @param {*} xScale The xScale to be used when placing the text in the square
  * @param {*} yScale The yScale to be used when placing the text in the square
  */
-export function rectSelected (rect, element, xScale, yScale) {
-  d3.select(rect).style('opacity', 0.75)
-  let w = rect.width.baseVal.value
-  let h = rect.height.baseVal.value
-  d3.select(rect.parentNode).insert('text')
+export function rectSelected (element, xScale, yScale) {
+  element.style('opacity', 0.75)
+  let w = element.width.baseVal.value
+  let h = element.height.baseVal.value
+  d3.select(this.parentNode).insert('text')
                             .text(element.Counts)
                             .attr('x', xScale(element.Plantation_Year)+w/2)
                             .attr('y', yScale(element.Arrond_Nom)+h/2)
