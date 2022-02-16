@@ -15,17 +15,18 @@ import { selectAll } from "d3"
  * @param {Function} unselectTicks The function to call to remove "selected" mode from the ticks
  */
 export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, selectTicks, unselectTicks) {
-  d3.selectAll("#graph-g").selectAll('g').selectAll('rect').on('mouseover', function(element)
-                                        {
-                                          rectSelected(d3.select(this), xScale, yScale);
-                                          selectTicks(element.Arrond_Nom, element.Plantation_Year);
-                                        })
-                                        .on('mouseout', function()
-                                        {
-                                          rectUnselected(d3.select(this));
-                                          unselectTicks();
-                                        })
-
+  d3.selectAll("#graph-g").selectAll('g .data')
+                          .selectAll('g')
+                          .on('mouseover', function(element)
+                              {
+                                rectSelected(d3.select(this), xScale, yScale);
+                                selectTicks(element.Arrond_Nom, element.Plantation_Year);
+                              })
+                              .on('mouseout', function()
+                              {
+                                rectUnselected(d3.select(this));
+                                unselectTicks();
+                              })
 }
 
 /**
@@ -40,16 +41,13 @@ export function setRectHandler (xScale, yScale, rectSelected, rectUnselected, se
  * @param {*} yScale The yScale to be used when placing the text in the square
  */
 export function rectSelected (element, xScale, yScale) {
-  element.style('opacity', 0.75)
-  let w = parseFloat(element.style("width").replace("px", ""))
-  let h = parseFloat(element.style("height").replace("px", ""))
-  console.log(element)
-  console.log(element.parentNode)
-  console.log(element.Node)
-  d3.select(element.parentNode).append('text', 'rect').text(element.data()[0].Counts)
-                  .attr('x', xScale(element.data()[0].Plantation_Year)+ w/2)
-                  .attr('y', yScale(element.data()[0].Arrond_Nom)+ h/2)
-                  .style('fill', element.data()[0].Counts>=1000?'white':'black')
+  element.select('rect').style('opacity', 0.75)
+  let w = parseFloat(element.select('rect').style("width").replace("px", ""))
+  let h = parseFloat(element.select('rect').style("height").replace("px", ""))
+  element.append('text', 'rect').text(element.select('rect').data()[0].Counts)
+                  .attr('x', xScale(element.select('rect').data()[0].Plantation_Year)+ w/2)
+                  .attr('y', yScale(element.select('rect').data()[0].Arrond_Nom)+ h/2)
+                  .style('fill', element.select('rect').data()[0].Counts>=1000?'white':'black')
                   .style('dominant-baseline', 'middle')
                   .style('text-anchor','middle')
                   .style('pointer-events', 'none')
@@ -66,8 +64,8 @@ export function rectSelected (element, xScale, yScale) {
  * @param {*} element The selection of rectangles in "selected" state
  */
 export function rectUnselected (element) {
-    element.style('opacity', 1.0)
-    d3.select(element.parentNode).select('text').remove()
+    element.select('rect').style('opacity', 1.0)
+    element.select('text').remove()
   }
 
 /**
