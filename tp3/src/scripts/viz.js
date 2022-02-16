@@ -22,7 +22,8 @@ export function setColorScaleDomain (colorScale, data) {
 export function appendRects (data) {
   // TODO : Creating our rects in the dedicated #graph-g frame.
   d3.select('#graph-g')
-    .append('g').attr('class', 'data')
+    .append('g')
+    .classed('data', true)
     .selectAll('rect')
     .data(data)
     .enter()
