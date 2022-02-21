@@ -5,7 +5,7 @@
  * @returns {string[]} The names of the neighorhoods in the data set
  */
 export function getNeighborhoodNames (data) {
-  // TODO: Return the neihborhood names
+  // Return the neihborhood names
   let neighborhoodsNames = []
   data.forEach(
     (currentData) => {
@@ -15,7 +15,7 @@ export function getNeighborhoodNames (data) {
       }
     }
   )
-  console.log(neighborhoodsNames)
+
   return neighborhoodsNames
 }
 
@@ -28,7 +28,7 @@ export function getNeighborhoodNames (data) {
  * @returns {object[]} The filtered data
  */
 export function filterYears (data, start, end) {
-  // TODO : Filter the data by years
+  // Filter the data by years
   let filteredData = []
   data.forEach(
     (currentData) => {
@@ -39,7 +39,7 @@ export function filterYears (data, start, end) {
       }
     }
   )
-  console.log (filteredData)
+
   return filteredData
 }
 
@@ -51,20 +51,22 @@ export function filterYears (data, start, end) {
  * the name of the neighborhood, the year and the number of trees that were planted
  */
 export function summarizeYearlyCounts (data) {
-  // TODO : Construct the required data table
+  // Construct the required data table
   let yearlyCount = []
   
   data.forEach(
     (currentData) => {
 
       const year = currentData.Date_Plantation.getFullYear()
-
+      
+      // Create the new Object
       let newObj = {
         Arrond_Nom: currentData.Arrond_Nom,
         Plantation_Year: year,
         Counts: 1
       }
       
+      // Count the repetition of the tree planted at a place at a specific year
       let filter = yearlyCount.find(element => element.Arrond_Nom == currentData.Arrond_Nom && element.Plantation_Year == year)
       if(filter ==  null){
         yearlyCount.push(newObj)
@@ -76,7 +78,6 @@ export function summarizeYearlyCounts (data) {
     }
   )
 
-  console.log(yearlyCount)
   return yearlyCount
 }
 
@@ -93,11 +94,12 @@ export function summarizeYearlyCounts (data) {
  * where the values for 'Counts' is 0
  */
 export function fillMissingData (data, neighborhoods, start, end, range) {
-  // TODO : Find missing data and fill with 0
+  // Find missing data and fill with 0
   const myRange = range(start, end)
 
   neighborhoods.forEach(
     (name) => {
+      // For each neighborhoods add the missing years
       let nameData = data.filter(element => element.Arrond_Nom == name)
       
       myRange.forEach(
@@ -105,6 +107,7 @@ export function fillMissingData (data, neighborhoods, start, end, range) {
           
           let obj = nameData.find(element => element.Plantation_Year === year);
           
+          // Create the object of the neighborhood at the missing year
           if(obj == null){
             let newObj = {
               Arrond_Nom: name,
@@ -119,6 +122,5 @@ export function fillMissingData (data, neighborhoods, start, end, range) {
       
     }
   )
-  console.log(data)
   return data
 }
