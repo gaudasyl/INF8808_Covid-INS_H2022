@@ -49,8 +49,9 @@ export function setColorScale (data) {
     })
   })
 
-  // Tuning the set into an array
+  // Tuning the set into an array and sorting it
   let arrayContinents = Array.from(continents)
+  arrayContinents.sort(d3.ascending)
   
   // Setting the color scale
   let colorScale = d3.scaleOrdinal(d3.schemeCategory10)
