@@ -7,6 +7,12 @@
  */
 export function positionLabels (g, width, height) {
   // TODO : Position axis labels
+  g.select('.x.axis-text')
+    .attr('x', width / 2)
+    .attr('y', height + 30)
+  g.select('.y.axis-text')
+    .attr('x', -30)
+    .attr('y', height / 2)
 }
 
 /**
