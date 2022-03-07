@@ -18,6 +18,16 @@ export function positionLabels (g, width, height) {
  */
 export function drawCircles (data, rScale, colorScale) {
   // TODO : Draw the bubble chart's circles
+  d3.select('g')
+    .selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+    .attr('r', (country) => rScale(country.Population))
+    .attr('fill', (country) => colorScale(country.Continent))
+    .attr('stroke', 'white')
+    .attr('stroke-width', 1)
+    .attr('opacity', 0.7)
   // Each circle's size depends on its population
   // and each circle's color depends on its continent.
   // The fill opacity of each circle is 70%
@@ -32,6 +42,15 @@ export function drawCircles (data, rScale, colorScale) {
 export function setCircleHoverHandler (tip) {
   // TODO : Set hover handler. The tooltip shows on
   // hover and the opacity goes up to 100% (from 70%)
+  d3.selectAll('circle')
+    .on('mouseover', function () {
+      d3.select(this).style('opacity', 1)
+      tip.show(this)
+    })
+    .on('mouseout', function () {
+      d3.select(this).style('opacity', 0.7)
+      tip.hide(this)
+    })
 }
 
 /**
@@ -45,6 +64,12 @@ export function setCircleHoverHandler (tip) {
 export function moveCircles (xScale, yScale, transitionDuration) {
   // TODO : Set up the transition and place the circle centers
   // in x and y according to their GDP and CO2 respectively
+  d3.selectAll('circle')
+    .transition()
+    .ease(d3.easeLinear)
+    .duration(transitionDuration)
+    .attr('cx', (country) => xScale(country.GDP))
+    .attr('cy', (country) => yScale(country.CO2))
 }
 
 /**
@@ -54,4 +79,5 @@ export function moveCircles (xScale, yScale, transitionDuration) {
  */
 export function setTitleText (year) {
   // TODO : Set the title
+  d3.select('.title').text('Data for year: ' + year)
 }
