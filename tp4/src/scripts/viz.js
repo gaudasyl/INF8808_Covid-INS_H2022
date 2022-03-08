@@ -29,6 +29,7 @@ export function drawCircles (data, rScale, colorScale) {
     .data(data)
     .enter()
     .append('circle')
+    .classed('data', true)
     .attr('r', (country) => rScale(country.Population))
     .attr('fill', (country) => colorScale(country.Continent))
     .attr('stroke', 'white')
@@ -48,7 +49,7 @@ export function drawCircles (data, rScale, colorScale) {
 export function setCircleHoverHandler (tip) {
   // TODO : Set hover handler. The tooltip shows on
   // hover and the opacity goes up to 100% (from 70%)
-  d3.selectAll('circle')
+  d3.selectAll('.data')
     .on('mouseover', function () {
       d3.select(this).style('opacity', 1)
       tip.show(this)
@@ -70,7 +71,7 @@ export function setCircleHoverHandler (tip) {
 export function moveCircles (xScale, yScale, transitionDuration) {
   // TODO : Set up the transition and place the circle centers
   // in x and y according to their GDP and CO2 respectively
-  d3.selectAll('circle')
+  d3.selectAll('.data')
     .transition()
     .ease(d3.easeLinear)
     .duration(transitionDuration)
