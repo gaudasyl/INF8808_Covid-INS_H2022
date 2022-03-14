@@ -20,7 +20,6 @@ export function convertCoordinates (data, projection) {
   // TODO : Add an x and y key to each feature object in the data
   // representing its x and y position according to the projection.
   // Each resulting object should be structured as :
-
   /*
     {
       type:'...'
@@ -30,6 +29,13 @@ export function convertCoordinates (data, projection) {
       y:...
     }
   */
+  data.features.forEach(
+    (feature) => {
+      const xy = projection(feature.geometry.coordinates)
+      feature.x = xy[0]
+      feature.y = xy[1]
+    }
+  )
 }
 
 /**
@@ -40,4 +46,9 @@ export function convertCoordinates (data, projection) {
  */
 export function simplifyDisplayTitles (data) {
   // TODO : Simplify the titles as required
+  data.features.forEach(
+    (feature) => {
+      feature.properties.TYPE_SITE_INTERVENTION = TITLES[feature.properties.TYPE_SITE_INTERVENTION]
+    }
+  )
 }
