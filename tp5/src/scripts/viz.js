@@ -56,14 +56,13 @@ export function mapBackground (data, path, showMapLabel) {
 export function showMapLabel (d, path) {
   // TODO : Show the map label at the center of the neighborhood
   // by calculating the centroid for its polygon
-  console.log(d)
   const label = d.properties.NOM
   const pos = path.centroid(d.geometry)
-  d3.select(d)
-    .append('text')
-    .text(label)
-    .attr('x', pos[0])
-    .attr('y', pos[1])
+  // d3.select(d)
+  //   .append('text')
+  //   .text(label)
+  //   .attr('x', pos[0])
+  //   .attr('y', pos[1])
 }
 
 /**
@@ -94,5 +93,5 @@ export function mapMarkers (data, color, panel) {
     .on('mouseout', function (d) {
       d3.select(this).attr('r', 5)
     })
-    .on('mouseclick', panel.show)
+    .on('click', (element) => panel.display(element, color))
 }
