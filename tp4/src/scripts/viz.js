@@ -50,9 +50,9 @@ export function setCircleHoverHandler (tip) {
   // TODO : Set hover handler. The tooltip shows on
   // hover and the opacity goes up to 100% (from 70%)
   d3.selectAll('.data')
-    .on('mouseover', function () {
+    .on('mouseover', function (element) {
       d3.select(this).style('opacity', 1)
-      tip.show(this)
+      tip.show(element, this)
     })
     .on('mouseout', function () {
       d3.select(this).style('opacity', 0.7)

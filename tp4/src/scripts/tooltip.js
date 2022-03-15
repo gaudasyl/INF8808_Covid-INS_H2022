@@ -8,12 +8,9 @@
  */
 export function getContents (d) {
   // TODO : Generate tooltip contents
-  console.log(d)
-  const tooltip = "<div id='tooltip-value'> TO DO (data undefined ...) </div>"
-  // `<div id='tooltip-value'> Name: ${d['Country Name']} </div>` +
-  //   `<div class='tooltip-value'> Population ${d.Population}</div>` +
-  //   `<div class='tooltip-value'> GDP: ${d.GDP}</div>` +
-  //   `<div class='tooltip-value'> CO2 emissions: ${d.CO2}</div>`
-
+  const tooltip = `<div class='tooltip-value'> <b>Name:</b> ${d['Country Name']} </div>` +
+    `<div class='tooltip-value'> <b>Population:</b> ${d.Population}</div>` +
+    `<div class='tooltip-value'> <b>GDP:</b> ${d.GDP.toFixed(2)} $ (USD)</div>` +
+    `<div class='tooltip-value'> <b>CO2 emissions:</b> ${d.CO2.toFixed(2)} metric tonnes</div>`
   return tooltip
 }
