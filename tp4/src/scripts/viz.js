@@ -6,7 +6,7 @@
  * @param {number} height The height of the graph
  */
 export function positionLabels (g, width, height) {
-  // TODO : Position axis labels
+  // Positioning the axes labels
   g.select('.x.axis-text')
     .attr('x', width / 2)
     .attr('y', height + 30)
@@ -23,7 +23,12 @@ export function positionLabels (g, width, height) {
  * @param {*} colorScale The scale for the circles' color
  */
 export function drawCircles (data, rScale, colorScale) {
-  // TODO : Draw the bubble chart's circles
+  
+  // Drawing the bubble chart's circles, details are defined as follows :
+  // Each circle's size depends on its population
+  // and each circle's color depends on its continent.
+  // The fill opacity of each circle is 70%
+  // The outline of the circles is white
   d3.select('g')
     .selectAll('circle')
     .data(data)
@@ -35,10 +40,6 @@ export function drawCircles (data, rScale, colorScale) {
     .attr('stroke', 'white')
     .attr('stroke-width', 1)
     .attr('opacity', 0.7)
-  // Each circle's size depends on its population
-  // and each circle's color depends on its continent.
-  // The fill opacity of each circle is 70%
-  // The outline of the circles is white
 }
 
 /**
@@ -47,8 +48,8 @@ export function drawCircles (data, rScale, colorScale) {
  * @param {*} tip The tooltip
  */
 export function setCircleHoverHandler (tip) {
-  // TODO : Set hover handler. The tooltip shows on
-  // hover and the opacity goes up to 100% (from 70%)
+
+  // Setup-ing the hover handler (opacity effect & tooltip content)
   d3.selectAll('.data')
     .on('mouseover', function (element) {
       d3.select(this).style('opacity', 1)
@@ -69,8 +70,8 @@ export function setCircleHoverHandler (tip) {
  * @param {number} transitionDuration The duration of the transition
  */
 export function moveCircles (xScale, yScale, transitionDuration) {
-  // TODO : Set up the transition and place the circle centers
-  // in x and y according to their GDP and CO2 respectively
+
+  // Creating the transition and place the circle conviently (according to GDP & CO2)
   d3.selectAll('.data')
     .transition()
     .ease(d3.easeLinear)
@@ -85,6 +86,6 @@ export function moveCircles (xScale, yScale, transitionDuration) {
  * @param {number} year The currently displayed year
  */
 export function setTitleText (year) {
-  // TODO : Set the title
-  d3.select('.title').text('Data for year: ' + year)
+  // Setting the title according to the year displayed
+  d3.select('.title').text('Data for year : ' + year)
 }
