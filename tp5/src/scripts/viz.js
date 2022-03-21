@@ -30,12 +30,13 @@ export function colorDomain (color, data) {
  */
 export function mapBackground (data, path, showMapLabel) {
   // TODO : Generate the map background and set the hover handlers
-  d3.select('#map-g').selectAll('g')
+  const g = d3.select('#map-g').selectAll('g')
     .data(data.features)
     .enter()
     .append('g')
-    .append('path')
+  g.append('path')
     .attr('d', path)
+    .attr('id', function (element) { return element.properties.NOM })
     .attr('class', 'area')
     .attr('stroke-width', 1)
     .attr('stroke', 'white')
@@ -43,6 +44,13 @@ export function mapBackground (data, path, showMapLabel) {
     .on('mouseover', function (element) {
       showMapLabel(element, path)
     })
+  d3.select('#map-g')
+    .append('text')
+    .attr('id', 'hoverMapLabel')
+    .attr('text-anchor', 'middle')
+    .attr('text-anchor', 'middle')
+    .attr('font-family', 'Open Sans Condensed')
+    .attr('font-size', 12)
 }
 
 /**
@@ -58,11 +66,10 @@ export function showMapLabel (d, path) {
   // by calculating the centroid for its polygon
   const label = d.properties.NOM
   const pos = path.centroid(d.geometry)
-  // d3.select(d)
-  //   .append('text')
-  //   .text(label)
-  //   .attr('x', pos[0])
-  //   .attr('y', pos[1])
+  d3.select('#hoverMapLabel')
+    .text(label)
+    .attr('x', pos[0])
+    .attr('y', pos[1])
 }
 
 /**
