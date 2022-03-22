@@ -42,13 +42,6 @@ export function mapBackground (data, path, showMapLabel) {
     .on('mouseover', function (element) {
       showMapLabel(element, path)
     })
-  d3.select('#marker-g')
-    .append('text')
-    .attr('id', 'hoverMapLabel')
-    .attr('text-anchor', 'middle')
-    .attr('text-anchor', 'middle')
-    .attr('font-family', 'Open Sans Condensed')
-    .attr('font-size', 12)
 }
 
 /**
@@ -99,4 +92,12 @@ export function mapMarkers (data, color, panel) {
       d3.select(this).attr('r', 5)
     })
     .on('click', (element) => panel.display(element, color))
+
+  d3.select('#marker-g')
+    .append('text')
+    .attr('id', 'hoverMapLabel')
+    .attr('text-anchor', 'middle')
+    .attr('text-anchor', 'middle')
+    .attr('font-family', 'Open Sans Condensed')
+    .attr('font-size', 12)
 }
