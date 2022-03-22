@@ -16,9 +16,7 @@ export function colorDomain (color, data) {
   const arraySiteTypes = Array.from(siteTypes)
   arraySiteTypes.sort(d3.ascending)
   // Setting the color scale
-  color = d3.scaleOrdinal(d3.schemeCategory10)
-    .domain(arraySiteTypes)
-  return color
+  color.domain(arraySiteTypes)
 }
 
 /**
@@ -44,7 +42,7 @@ export function mapBackground (data, path, showMapLabel) {
     .on('mouseover', function (element) {
       showMapLabel(element, path)
     })
-  d3.select('#map-g')
+  d3.select('#marker-g')
     .append('text')
     .attr('id', 'hoverMapLabel')
     .attr('text-anchor', 'middle')
