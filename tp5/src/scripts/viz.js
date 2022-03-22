@@ -5,17 +5,22 @@
  * @param {object[]} data The data to be displayed
  */
 export function colorDomain (color, data) {
-  // Set the color domain
-  // Initiating a set to get all continents once
+  
+  // Initiating a set to get all site titles once.
   const siteTypes = new Set()
-  // Capture each continent correctly
+
+  // Capture each title correctly.
   data.features.forEach((feature) => {
     siteTypes.add(feature.properties.TYPE_SITE_INTERVENTION)
   })
-  // Tuning the set into an array and sorting it
+
+  // Tuning the set into an array and sorting it in order to sort it.
   const arraySiteTypes = Array.from(siteTypes)
+
+  // Sorting it to fit requirements.
   arraySiteTypes.sort(d3.ascending)
-  // Setting the color scale
+
+  // Setting the color scale.
   color.domain(arraySiteTypes)
 }
 
@@ -27,20 +32,27 @@ export function colorDomain (color, data) {
  * @param {Function} showMapLabel The function to call when a neighborhood is hovered
  */
 export function mapBackground (data, path, showMapLabel) {
-  // TODO : Generate the map background and set the hover handlers
+
+  // Adding a convenient container for each feature.
   const g = d3.select('#map-g').selectAll('g')
     .data(data.features)
     .enter()
     .append('g')
+
+  // Setuping style and interactions.
   g.append('path')
     .attr('d', path)
     .attr('id', function (element) { return element.properties.NOM })
-    .attr('class', 'area')
     .attr('stroke-width', 1)
     .attr('stroke', 'white')
     .attr('fill', 'lightgrey')
+    .classed('area', true)
     .on('mouseover', function (element) {
       showMapLabel(element, path)
+    })
+    .on('mouseout', () => {
+      // Using opacity to hide the label when leaving the map.
+      d3.select('#hoverMapLabel').style('visibility','hidden')
     })
 }
 
@@ -53,14 +65,17 @@ export function mapBackground (data, path, showMapLabel) {
  * @param {*} path The path used to draw the map elements
  */
 export function showMapLabel (d, path) {
-  // TODO : Show the map label at the center of the neighborhood
-  // by calculating the centroid for its polygon
+
+  // Getting name and calculating centroid.
   const label = d.properties.NOM
   const pos = path.centroid(d.geometry)
+
+  // Displaying the map label at the center of the neighborhood using the centroid.
   d3.select('#hoverMapLabel')
     .text(label)
     .attr('x', pos[0])
     .attr('y', pos[1])
+    .style('visibility','visible')
 }
 
 /**
@@ -71,10 +86,8 @@ export function showMapLabel (d, path) {
  * @param {*} panel The display panel, which should be dislayed when a circle is clicked
  */
 export function mapMarkers (data, color, panel) {
-  // TODO : Display the map markers.
-  // Their color corresponds to the type of site and their outline is white.
-  // Their radius is 5 and goes up to 6 while hovered by the cursor.
-  // When clicked, the panel is displayed.
+
+  // Setuping the map markers and their way to be displayed.
   d3.select('#marker-g')
     .selectAll('circle')
     .data(data.features)
@@ -93,6 +106,7 @@ export function mapMarkers (data, color, panel) {
     })
     .on('click', (element) => panel.display(element, color))
 
+  // Setuping the neighborhood label characteristics.
   d3.select('#marker-g')
     .append('text')
     .attr('id', 'hoverMapLabel')

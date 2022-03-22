@@ -5,10 +5,14 @@
  * @param {*} color The color scale used to select the title's color
  */
 export function display (d, color) {
+
+  // Making the panel visible.
   const panel = d3.select('#panel').style('visibility', 'visible')
 
+  // Cleaning its content.
   panel.selectAll('*').remove()
 
+  // Adding the close button and its click listener
   panel.append('div')
     .style('text-align', 'right')
     .style('font-family', 'Open Sans Condensed')
@@ -17,20 +21,25 @@ export function display (d, color) {
     .text('FERMER')
     .on('click', () => panel.style('visibility', 'hidden'))
 
+  // Initiating the panel title container and style.
   const title = panel
     .append('div')
     .style('font-family', 'Oswald')
     .style('font-size', '24px')
 
+  // Set its content (title).
   setTitle(title, d, color)
 
+  // Initialising the panel mode container and style.
   const mode = panel
     .append('div')
     .style('font-family', 'Oswald')
     .style('font-size', '16px')
 
+  // Set its content (mode).
   setMode(mode, d)
 
+  // Initialising the objectives container and style (if there are objectives only).
   if (d.properties.OBJECTIF_THEMATIQUE) {
     const theme = panel
       .append('div')
@@ -38,7 +47,8 @@ export function display (d, color) {
       .style('font-family', 'Open Sans Condensed')
       .style('font-size', '16px')
       .text('Thématique : ')
-
+    
+    // Set its content (objectives).
     const list = theme.append('ul')
     d.properties.OBJECTIF_THEMATIQUE.split('\n').forEach(element => {
       setTheme(list, element)
@@ -55,7 +65,7 @@ export function display (d, color) {
  * @param {*} color The color scale to select the title's color
  */
 function setTitle (g, d, color) {
-  // TODO : Set the title
+  // Appending the title and its according color.
   g.append('text')
     .text(d.properties.NOM_PROJET)
     .style('color', color(d.properties.TYPE_SITE_INTERVENTION))
@@ -68,7 +78,7 @@ function setTitle (g, d, color) {
  * @param {object} d The data to display
  */
 function setMode (g, d) {
-  // TODO : Set the mode
+  // Appending the correct mode and its content.
   g.append('text')
     .text(d.properties.MODE_IMPLANTATION)
 }
@@ -81,6 +91,6 @@ function setMode (g, d) {
  * @param {object} d The data to display
  */
 function setTheme (g, d) {
-  // TODO : Append a list element representing the given theme
+  // Appending a list element representing the given theme
   g.append('li').text(d)
 }

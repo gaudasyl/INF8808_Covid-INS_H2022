@@ -17,18 +17,7 @@ const TITLES = {
  * @param {*} projection The projection to use to convert the longitude and latitude
  */
 export function convertCoordinates (data, projection) {
-  // TODO : Add an x and y key to each feature object in the data
-  // representing its x and y position according to the projection.
-  // Each resulting object should be structured as :
-  /*
-    {
-      type:'...'
-      properties:{...}
-      geometry:{...}
-      x:...
-      y:...
-    }
-  */
+  // Structuring data and adding it the x and y keys according to the given projection.
   data.features.forEach(
     (feature) => {
       const xy = projection(feature.geometry.coordinates)
@@ -38,6 +27,7 @@ export function convertCoordinates (data, projection) {
   )
 }
 
+
 /**
  * Simplifies the titles for the property 'TYPE_SITE_INTERVENTION'. The names
  * to use are contained in the constant 'TITLES' above.
@@ -45,7 +35,7 @@ export function convertCoordinates (data, projection) {
  * @param {*} data The data to be displayed
  */
 export function simplifyDisplayTitles (data) {
-  // TODO : Simplify the titles as required
+  // Simplfifying titles using the titles list defined above.
   data.features.forEach(
     (feature) => {
       feature.properties.TYPE_SITE_INTERVENTION = TITLES[feature.properties.TYPE_SITE_INTERVENTION]
