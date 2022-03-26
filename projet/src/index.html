@@ -4,13 +4,31 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="Description" content="Code pour le Projet de INF8808.">
-        <title>TP4 | INF8808</title>
+        <title>Projet | INF8808</title>
 
         <link rel="stylesheet" href="assets/style.css">
 
       </head>
 
       <body>
+        <main>
+          <div class="viz-container">
+            <div class="graph">
+              <div class="count-svg">
+                <h1 id="training-count">
+                </h1>
+                <h2 id="total-training-count">
+                </h2>
+                <h3>
+                  Entrainements permis pendant les fermetures des gyms au Québec
+                </h3>
+
+              </div>
+              <svg class="main-svg"></svg>
+              <svg class="smallMultiple-svg"></svg>
+            </div>
+          </div>
+        </main>
         <script src="https://d3js.org/d3.v5.js"></script>
         <script type="module" src="index.js"></script>
       </body>
