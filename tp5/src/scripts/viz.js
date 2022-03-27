@@ -32,7 +32,6 @@ export function colorDomain (color, data) {
  * @param {Function} showMapLabel The function to call when a neighborhood is hovered
  */
 export function mapBackground (data, path, showMapLabel) {
-
   // Adding a convenient container for each feature.
   const g = d3.select('#map-g').selectAll('g')
     .data(data.features)
@@ -52,8 +51,17 @@ export function mapBackground (data, path, showMapLabel) {
     })
     .on('mouseout', () => {
       // Using opacity to hide the label when leaving the map.
-      d3.select('#hoverMapLabel').style('visibility','hidden')
+      d3.select('#hoverMapLabel').style('visibility', 'hidden')
     })
+
+  // Setuping the neighborhood label characteristics.
+  d3.select('#map-g')
+    .append('text')
+    .attr('id', 'hoverMapLabel')
+    .attr('text-anchor', 'middle')
+    .attr('text-anchor', 'middle')
+    .attr('font-family', 'Open Sans Condensed')
+    .attr('font-size', 12)
 }
 
 /**
@@ -65,7 +73,6 @@ export function mapBackground (data, path, showMapLabel) {
  * @param {*} path The path used to draw the map elements
  */
 export function showMapLabel (d, path) {
-
   // Getting name and calculating centroid.
   const label = d.properties.NOM
   const pos = path.centroid(d.geometry)
@@ -75,7 +82,7 @@ export function showMapLabel (d, path) {
     .text(label)
     .attr('x', pos[0])
     .attr('y', pos[1])
-    .style('visibility','visible')
+    .style('visibility', 'visible')
 }
 
 /**
@@ -86,7 +93,6 @@ export function showMapLabel (d, path) {
  * @param {*} panel The display panel, which should be dislayed when a circle is clicked
  */
 export function mapMarkers (data, color, panel) {
-
   // Setuping the map markers and their way to be displayed.
   d3.select('#marker-g')
     .selectAll('circle')
@@ -105,13 +111,4 @@ export function mapMarkers (data, color, panel) {
       d3.select(this).attr('r', 5)
     })
     .on('click', (element) => panel.display(element, color))
-
-  // Setuping the neighborhood label characteristics.
-  d3.select('#marker-g')
-    .append('text')
-    .attr('id', 'hoverMapLabel')
-    .attr('text-anchor', 'middle')
-    .attr('text-anchor', 'middle')
-    .attr('font-family', 'Open Sans Condensed')
-    .attr('font-size', 12)
 }
