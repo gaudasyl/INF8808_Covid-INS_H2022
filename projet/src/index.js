@@ -13,10 +13,17 @@ import * as viz from './scripts/viz.js'
 
 (function (d3) {
     d3.dsv(';', './data.csv').then(function (data) {
-        console.log(data)
-        const cleanData = preprocess.getDateAndGroupBySport(data)
-        console.log(cleanData)
+        const validEntries = preprocess.getOnlyValidEntries(data)
+        console.log(validEntries.length + ' entrées acceptées')
+        const entryDatesBySports = preprocess.getDateAndGroupBySport(validEntries)
+        console.log(entryDatesBySports)
 
-        viz.DrawCount()
+        // start and end dates to define
+        const dateDebut = Date.now()
+        const dateFin = Date.now()
+
+        viz.DrawCount(validEntries, dateDebut, dateFin)
+        viz.DrawCovidViz()
+        viz.DrawSmallMultiple(entryDatesBySports, dateDebut, dateFin)
     })
 })(d3)

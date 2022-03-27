@@ -19,6 +19,13 @@ const months =
 /**
  * @param data
  */
+export function getOnlyValidEntries (data) {
+    return data.filter(x => x.etat === 'Accepté')
+}
+
+/**
+ * @param data
+ */
 export function getDateAndGroupBySport (data) {
     const sports = {}
     data.forEach(entry => {
@@ -26,9 +33,6 @@ export function getDateAndGroupBySport (data) {
             sports[entry.sport] = []
         }
         const cd = cleanDate(entry.date)
-        if (Number.isNaN(cd)) {
-            console.log(entry.date)
-        }
         sports[entry.sport].push(cd)
     })
     return sports
