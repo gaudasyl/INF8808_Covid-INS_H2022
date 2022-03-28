@@ -16,6 +16,22 @@ const months =
     décembre: 'Dec'
 }
 
+const months2 =
+{
+    janvier: 1,
+    février: 2,
+    mars: 3,
+    avril: 4,
+    mai: 5,
+    juin: 6,
+    juillet: 7,
+    août: 8,
+    septembre: 9,
+    octobre: 10,
+    novembre: 11,
+    décembre: 12
+}
+
 /**
  * @param data
  */
@@ -43,7 +59,9 @@ export function getDateAndGroupBySport (data) {
  */
 function cleanDate (date) {
     const dateArray = date.split(' ')
-    const cleanDate = dateArray[0] + ' ' + months[dateArray[1]] + ' ' + dateArray[2] + ' ' + dateArray[4] + ':00 GMT'
-    const d = Date.parse(cleanDate)
+    // const cleanDate = dateArray[0] + ' ' + months[dateArray[1]] + ' ' + dateArray[2] + ' ' + dateArray[4] + ':00 GMT'
+    // const d = new Date(Date.parse(cleanDate))
+    // console.log(dateArray)
+    const d = new Date(dateArray[2], months2[dateArray[1]], dateArray[0])
     return d
 }
