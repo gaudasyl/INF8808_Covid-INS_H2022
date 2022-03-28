@@ -2,22 +2,6 @@
 
 const months =
 {
-    janvier: 'Jan',
-    février: 'Feb',
-    mars: 'Mar',
-    avril: 'Apr',
-    mai: 'May',
-    juin: 'Jun',
-    juillet: 'Jul',
-    août: 'Aug',
-    septembre: 'Sep',
-    octobre: 'Oct',
-    novembre: 'Nov',
-    décembre: 'Dec'
-}
-
-const months2 =
-{
     janvier: 1,
     février: 2,
     mars: 3,
@@ -31,6 +15,21 @@ const months2 =
     novembre: 11,
     décembre: 12
 }
+
+
+//setting sorting method for our data
+Array.prototype.sortOn = function (key) {
+    this.sort(function (a, b) {
+        if (a[key] < b[key]) {
+            return -1
+        } else if (a[key] > b[key]) {
+            return 1
+        }
+        return 0
+    })
+}
+
+
 
 /**
  * @param data
@@ -55,13 +54,33 @@ export function getDateAndGroupBySport (data) {
 }
 
 /**
+ * @param data
+ */
+export function getSportEntriesgroupByDays (data) {
+    const sportsEntriesByDay = {}
+    Object.keys(data).forEach(function (sport) {
+        sportsEntriesByDay[sport] = []
+        const days = {}
+        data[sport].forEach(function (date) {
+            if (days[date] == null) {
+                days[date] = 1
+            }
+            days[date] += 1
+        })
+        Object.keys(days).forEach(function (d) {
+            sportsEntriesByDay[sport].push({ date: d3.timeParse('%Y-%m-%d')(d), entries: Number(days[d]) })
+        })
+
+        sportsEntriesByDay[sport].sortOn('date')
+    })
+    return sportsEntriesByDay
+}
+
+/**
  * @param date
  */
 function cleanDate (date) {
     const dateArray = date.split(' ')
-    // const cleanDate = dateArray[0] + ' ' + months[dateArray[1]] + ' ' + dateArray[2] + ' ' + dateArray[4] + ':00 GMT'
-    // const d = new Date(Date.parse(cleanDate))
-    // console.log(dateArray)
-    const d = new Date(dateArray[2], months2[dateArray[1]], dateArray[0])
+    const d = dateArray[2] + '-' + months[dateArray[1]] + '-' + dateArray[0]
     return d
 }

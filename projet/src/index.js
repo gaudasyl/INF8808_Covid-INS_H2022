@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 'use strict'
 
-import d3Tip from 'd3-tip'
+// import d3Tip from 'd3-tip'
 import * as preprocess from './scripts/preprocessing.js'
 import * as viz from './scripts/viz.js'
 
@@ -17,6 +17,8 @@ import * as viz from './scripts/viz.js'
         console.log(validEntries.length + ' entrées acceptées')
         const entryDatesBySports = preprocess.getDateAndGroupBySport(validEntries)
         console.log(entryDatesBySports)
+        const sportsEntriesByDay = preprocess.getSportEntriesgroupByDays(entryDatesBySports)
+        console.log(sportsEntriesByDay)
 
         // start and end dates to define
         const dateDebut = Date.now()
@@ -24,6 +26,6 @@ import * as viz from './scripts/viz.js'
 
         viz.DrawCount(validEntries, dateDebut, dateFin)
         viz.DrawCovidViz()
-        viz.DrawSmallMultiple(entryDatesBySports, dateDebut, dateFin)
+        viz.DrawSmallMultiple(sportsEntriesByDay, dateDebut, dateFin)
     })
 })(d3)
