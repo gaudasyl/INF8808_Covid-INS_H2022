@@ -13,19 +13,21 @@ import * as viz from './scripts/viz.js'
 
 (function (d3) {
     d3.dsv(';', './data.csv').then(function (data) {
+        const cleanData = preprocess.cleanData(data)
         const validEntries = preprocess.getOnlyValidEntries(data)
         console.log(validEntries.length + ' entrées acceptées')
-        const entryDatesBySports = preprocess.getDateAndGroupBySport(validEntries)
-        console.log(entryDatesBySports)
-        const sportsEntriesByDay = preprocess.getSportEntriesgroupByDays(entryDatesBySports)
-        console.log(sportsEntriesByDay)
+        
+        // const entryDatesBySports = preprocess.getDateAndGroupBySport(validEntries)
+        // console.log(entryDatesBySports)
+        // const sportsEntriesByDay = preprocess.getSportEntriesgroupByDays(entryDatesBySports)
+        // console.log(sportsEntriesByDay)
 
         // start and end dates to define
-        const dateDebut = Date.now()
-        const dateFin = Date.now()
-
-        viz.DrawCount(validEntries, dateDebut, dateFin)
+        const dateDebut = new Date(2020, 0, 1)
+        const dateFin = new Date(2022, 0, 1)
+        viz.DrawCount(cleanData, dateDebut, dateFin)
         viz.DrawCovidViz()
-        viz.DrawSmallMultiple(sportsEntriesByDay, dateDebut, dateFin)
+        // viz.DrawSmallMultiple(sportsEntriesByDay, dateDebut, dateFin)
+        viz.DrawSmallMultiplev2(cleanData)
     })
 })(d3)

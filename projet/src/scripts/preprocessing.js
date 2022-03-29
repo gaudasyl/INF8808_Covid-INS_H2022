@@ -29,6 +29,13 @@ Array.prototype.sortOn = function (key) {
     })
 }
 
+function compareDate (a, b) {
+    if (a.date < b.date)
+       return -1
+    if (a.date > b.date)
+       return 1
+    return 0
+  }
 
 
 /**
@@ -81,6 +88,27 @@ export function getSportEntriesgroupByDays (data) {
  */
 function cleanDate (date) {
     const dateArray = date.split(' ')
-    const d = dateArray[2] + '-' + months[dateArray[1]] + '-' + dateArray[0]
-    return d
+    return new Date(dateArray[2], months[dateArray[1]], dateArray[0])
+}
+
+export function cleanData (data) {
+    data = getOnlyValidEntries(data)
+    let cleanData = data.map(function (d) {
+        return { date: cleanDate(d.date), sport: d.sport }
+    })
+    cleanData.sort(compareDate)
+    cleanData = cleanData.map(function (d, i) {
+        let last7Days = 0
+        cleanData.every((el) => {
+            if (el.sport === d.sport && el.date <= d.date && el.date > d.date - 7) {
+                last7Days += 1
+            }
+            return (el.date <= d.date && el.date > d.date - 7)
+        })
+        return { date: d.date, sport: d.sport, weeklyAvg: last7Days / 7 }
+    })
+    var check = new Set()
+    cleanData.filter(obj => !check.has(obj[obj.date]) && check.add(obj[obj.date]))
+    console.log(cleanData)
+    return cleanData
 }
