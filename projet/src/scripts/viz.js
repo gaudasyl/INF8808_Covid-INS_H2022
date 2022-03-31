@@ -6,14 +6,19 @@ const height = 210 - margin.top - margin.bottom
 
 /**
  * @param data
- * @param date1
- * @param date2
+ * @param startDate
+ * @param endDate
  */
-export function DrawCount (data, date1, date2) {
+export function DrawCount (data, startDate, endDate) {
     console.log('--- Counter ---')
-    console.log(data)
-    const saved = data.filter(x => x.date < date2 && x.date > date1).length
-    const total = data.length
+    let saved = 0
+    let total = 0
+    data.forEach(element => {
+        total += Number(element.athletes)
+        if (startDate <= element.date && element.date <= endDate) {
+            saved += Number(element.athletes)
+        }
+    })
     d3.select('#training-count').text(saved)
     d3.select('#total-training-count').text(`sur ${total}`)
 }
@@ -27,73 +32,10 @@ export function DrawCovidViz () {
 
 /**
  * @param data
- * @param date1
- * @param date2
+ * @param startDate
+ * @param endDate
  */
-export function DrawSmallMultiple (data, date1, date2) {
-    console.log('--- Small mutliples viz ---')
-    Object.keys(data).forEach((sport) => {
-        DrawOneSportMultiple(data[sport], sport, 200, 200)
-    })
-}
-
-/**
- * @param data
- * @param sportName
- * @param width
- * @param height
- */
-function DrawOneSportMultiple (data, sportName, width, height) {
-    const svg = d3.select('#smallMultiple-svg')
-        .append('div')
-        .attr('id', sportName)
-        .classed('smallMultiple', true) // add style sheet rule for smallMultiple lineCharts
-        .attr('width', width)
-        .attr('height', height)
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-
-    svg.append('text')
-        .attr('transform', 'translate(0,' + 20 + ')')
-        .classed('title', true)
-        .text(sportName)
-
-    height -= 20
-    width -= 20
-        // Add X axis --> it is a date format
-    var xScale = d3.scaleTime()
-        .domain(d3.extent(data, function (d) { return d.date }))
-        .range([0, width])
-        svg.append('g')
-        .attr('transform', 'translate(0,' + height + ')')
-        .classed('xAxis', true)
-        .call(d3.axisBottom(xScale))
-
-    // Add Y axis
-    var yScale = d3.scaleLinear()
-        .domain([0, d3.max(data, function (d) { return +d.entries })])
-        .range([height, 0])
-    svg.append('g')
-        .classed('yAxis', true)
-        .call(d3.axisLeft(yScale))
-
-    // Add the line
-    svg.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-            .x(function (d) { return xScale(d.date) })
-            .y(function (d) { return yScale(d.entries) })
-        )
-}
-
-/**
- * @param data
- */
-export function DrawSmallMultiplev2 (data) {
+export function DrawSmallMultiple (data, startDate, endDate) {
     // group the data: I want to draw one line per group
     var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
                 .key(function (d) { return d.sport })
@@ -116,7 +58,7 @@ export function DrawSmallMultiplev2 (data) {
 
     // Add X axis --> it is a date format
     var x = d3.scaleTime()
-            .domain(d3.extent(data, function (d) { return d.date }))
+            .domain(d3.extent(data, function (d) { return new Date(d.date) }))
             .range([0, width])
     svg.append('g')
         .attr('transform', 'translate(0,' + height + ')')
@@ -124,7 +66,7 @@ export function DrawSmallMultiplev2 (data) {
 
     // Add Y axis
     var y = d3.scaleLinear()
-                .domain([0, d3.max(data, function (d) { return +d.weeklyAvg })])
+                .domain([0, d3.max(data, function (d) { return +d.moving_avg })])
                 .range([height, 0])
     svg.append('g')
         .call(d3.axisLeft(y).ticks(5))
@@ -132,12 +74,11 @@ export function DrawSmallMultiplev2 (data) {
     // Draw the line
     svg.append('path')
         .attr('fill', '#1c87c9')
-       .attr('stroke', 'red')
        .attr('d', function (d) {
         return d3.area()
-        .x(function (d) { return x(d.date) })
+        .x(function (d) { return x(new Date(d.date)) })
         .y0(y(0))
-        .y1(function (d) { return y(+d.weeklyAvg) })(d.values)
+        .y1(function (d) { return y(+d.moving_avg) })(d.values)
        })
 
     // Add titles
@@ -145,5 +86,7 @@ export function DrawSmallMultiplev2 (data) {
         .attr('text-anchor', 'start')
         .attr('y', -5)
         .attr('x', 0)
-        .text(function (d) { console.log(d); return (d.key) })
+        .text(function (d) { return (d.key) })
+
+    console.log(sumstat)
 }

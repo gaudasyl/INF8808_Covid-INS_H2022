@@ -2,7 +2,6 @@
 'use strict'
 
 // import d3Tip from 'd3-tip'
-import * as preprocess from './scripts/preprocessing.js'
 import * as viz from './scripts/viz.js'
 
 /**
@@ -12,22 +11,13 @@ import * as viz from './scripts/viz.js'
  */
 
 (function (d3) {
-    d3.dsv(';', './data.csv').then(function (data) {
-        const cleanData = preprocess.cleanData(data)
-        const validEntries = preprocess.getOnlyValidEntries(data)
-        console.log(validEntries.length + ' entrées acceptées')
-        
-        // const entryDatesBySports = preprocess.getDateAndGroupBySport(validEntries)
-        // console.log(entryDatesBySports)
-        // const sportsEntriesByDay = preprocess.getSportEntriesgroupByDays(entryDatesBySports)
-        // console.log(sportsEntriesByDay)
-
+    d3.csv('./moving_avg_dataset.csv').then(function (data) {
+        console.log(data)
         // start and end dates to define
-        const dateDebut = new Date(2020, 0, 1)
-        const dateFin = new Date(2022, 0, 1)
-        viz.DrawCount(cleanData, dateDebut, dateFin)
+        const startDate = new Date(2020, 0, 1)
+        const endDate = new Date(2022, 0, 1)
+        viz.DrawCount(data, startDate, endDate)
         viz.DrawCovidViz()
-        // viz.DrawSmallMultiple(sportsEntriesByDay, dateDebut, dateFin)
-        viz.DrawSmallMultiplev2(cleanData)
+        viz.DrawSmallMultiple(data, startDate, endDate)
     })
 })(d3)
