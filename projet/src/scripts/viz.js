@@ -146,14 +146,16 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .domain(d3.extent(data, function (d) { return new Date(d.date) }))
         .range([0, SM_WIDTH])
     svg.append('g')
+        .attr('class', 'x-axis')
         .attr('transform', 'translate(0,' + SM_HEIGHT + ')')
-        .call(d3.axisBottom(x).ticks(3))
+        .call(d3.axisBottom(x).ticks(2))
 
     // Add Y axis
     var y = d3.scaleLinear()
         .domain([0, d3.max(data, function (d) { return +d.moving_avg })])
         .range([SM_HEIGHT, 0])
     svg.append('g')
+        .attr('class', 'y-axis')
         .call(d3.axisLeft(y).ticks(5))
 
     // Draw the line
