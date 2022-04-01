@@ -1,8 +1,18 @@
 /* eslint-disable indent */
 
-const margin = { top: 30, right: 0, bottom: 30, left: 50 }
-const width = 210 - margin.left - margin.right
-const height = 210 - margin.top - margin.bottom
+const MARGIN = { top: 30, right: 0, bottom: 30, left: 50 }
+
+const SM_WIDTH = 300 - MARGIN.left - MARGIN.right
+const SM_HEIGHT = 300 - MARGIN.top - MARGIN.bottom
+
+const COVID_WIDTH = 600 - MARGIN.left - MARGIN.right
+const COVID_HEIGHT = 400 - MARGIN.top - MARGIN.bottom
+
+const FREQ_COLOR = '#E83A14'
+const CASES_COLOR = '#E83A14'
+const DEATH_COLOR = '#890F0D'
+const HOSPI_COLOR = '#373636'
+
 
 /**
  * @param data
@@ -27,8 +37,67 @@ export function DrawCount(data, startDate, endDate) {
  *
  */
 export function DrawCovidViz(data, startDate, endDate) {
-    console.log('--- Covid Viz ---')
-    // TODO
+    console.log(data)
+
+    var svg = d3.select('#covid-svg')
+        .append('svg')
+        .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
+        .attr('height', COVID_HEIGHT + MARGIN.top + MARGIN.bottom)
+        .append('g')
+        .attr('transform',
+            'translate(' + MARGIN.left + ',' + MARGIN.top + ')')
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleTime()
+        .domain(d3.extent(data, function (d) { return new Date(d.date) }))
+        .range([0, COVID_WIDTH]);
+    svg.append("g")
+        .attr("transform", "translate(0," + COVID_HEIGHT + ")")
+        .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain(
+            [0, d3.max(data, function (d) {
+                return Math.max(d.cases_moving_avg, d.death_moving_avg, d.hospi_moving_avg)
+            })])
+        .range([COVID_HEIGHT, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    // Add the lines
+    svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", CASES_COLOR)
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function (d) { return x(new Date(d.date)) })
+            .y(function (d) { return y(d.cases_moving_avg) })
+        )
+
+    svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", DEATH_COLOR)
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function (d) { return x(new Date(d.date)) })
+            .y(function (d) { return y(d.death_moving_avg) })
+        )
+
+    svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", HOSPI_COLOR)
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(function (d) { return x(new Date(d.date)) })
+            .y(function (d) { return y(d.hospi_moving_avg) })
+        )
+
+
+    console.log(svg)
 }
 
 /**
@@ -37,6 +106,7 @@ export function DrawCovidViz(data, startDate, endDate) {
  * @param endDate
  */
 export function DrawSmallMultiple(data, startDate, endDate) {
+
     // group the data: I want to draw one line per group
     var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
         .key(function (d) { return d.sport })
@@ -65,30 +135,30 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .data(sumstat)
         .enter()
         .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
+        .attr('width', SM_WIDTH + MARGIN.left + MARGIN.right)
+        .attr('height', SM_HEIGHT + MARGIN.top + MARGIN.bottom)
         .append('g')
         .attr('transform',
-            'translate(' + margin.left + ',' + margin.top + ')')
+            'translate(' + MARGIN.left + ',' + MARGIN.top + ')')
 
     // Add X axis --> it is a date format
     var x = d3.scaleTime()
         .domain(d3.extent(data, function (d) { return new Date(d.date) }))
-        .range([0, width])
+        .range([0, SM_WIDTH])
     svg.append('g')
-        .attr('transform', 'translate(0,' + height + ')')
+        .attr('transform', 'translate(0,' + SM_HEIGHT + ')')
         .call(d3.axisBottom(x).ticks(3))
 
     // Add Y axis
     var y = d3.scaleLinear()
         .domain([0, d3.max(data, function (d) { return +d.moving_avg })])
-        .range([height, 0])
+        .range([SM_HEIGHT, 0])
     svg.append('g')
         .call(d3.axisLeft(y).ticks(5))
 
     // Draw the line
     svg.append('path')
-        .attr('fill', '#1c87c9')
+        .attr('fill', FREQ_COLOR)
         .attr('d', function (d) {
             return d3.area()
                 .x(function (d) { return x(new Date(d.date)) })
@@ -102,6 +172,4 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('y', -5)
         .attr('x', 0)
         .text(function (d) { return (d.key) })
-
-    console.log(sumstat)
 }

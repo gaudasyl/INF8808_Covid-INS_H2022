@@ -1,35 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="Description" content="Code pour le Projet de INF8808.">
-        <title>Projet | INF8808</title>
 
-        <link rel="stylesheet" href="assets/style.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="Description" content="Code pour le Projet de INF8808.">
+  <title>Projet | INF8808</title>
 
-      </head>
+  <link rel="stylesheet" href="assets/style.css">
 
-      <body>
-        <main>
-          <div class="viz-container">
-            <div class="graph">
-              <div class="count-svg">
-                <h1 id="training-count">
-                </h1>
-                <h2 id="total-training-count">
-                </h2>
-                <h3>
-                  Entrainements permis pendant les fermetures des gyms au Québec
-                </h3>
+</head>
 
-              </div>
-              <div id="main-svg"></div>
-              <div id="smallMultiple-svg"></div>
-            </div>
-          </div>
-        </main>
-        <script src="https://d3js.org/d3.v5.js"></script>
-        <script type="module" src="index.js"></script>
-      </body>
+<body>
+  <main>
+    <div class="viz-container">
+      <div class="graph">
+        <div class="count-svg">
+          <h1 id="training-count">
+          </h1>
+          <h2 id="total-training-count">
+          </h2>
+          <h3>
+            Entrainements permis pendant les fermetures des gyms au Québec
+          </h3>
+
+        </div>
+        <div id="covid-svg"></div>
+        <div id="smallMultiple-svg"></div>
+      </div>
+    </div>
+  </main>
+  <script src="https://d3js.org/d3.v5.js"></script>
+  <script type="module" src="index.js"></script>
+</body>
+
 </html>
