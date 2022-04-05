@@ -2,10 +2,10 @@
 
 const MARGIN = { top: 30, right: 0, bottom: 30, left: 50 }
 
-const SM_WIDTH = 250 - MARGIN.left - MARGIN.right
-const SM_HEIGHT = 250 - MARGIN.top - MARGIN.bottom
+const SM_WIDTH = 275 - MARGIN.left - MARGIN.right
+const SM_HEIGHT = 275 - MARGIN.top - MARGIN.bottom
 
-const COVID_WIDTH = 600 - MARGIN.left - MARGIN.right
+const COVID_WIDTH = 700 - MARGIN.left - MARGIN.right
 const COVID_HEIGHT = 400 - MARGIN.top - MARGIN.bottom
 
 const FREQ_COLOR = '#E83A14'

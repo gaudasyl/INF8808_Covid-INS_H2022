@@ -14,22 +14,30 @@
 
 <body>
   <main>
-    <div class="container">
+    <div id="main-container" class="container">
       <div class="row">
         <div class="col-md-auto">
-          <div class="count-svg">
-            <h3 id="training-count"></h3>
-            <h4 id="total-training-count"></h4>
-            <p id="count-title">
-              Entrainements permis pendant les fermetures des gyms au Québec
-            </p>
+          <div class="row border border-4">
+            <div class="count-svg">
+              <h3 id="training-count"></h3>
+              <h4 id="total-training-count"></h4>
+              <p id="count-title">
+                Entrainements permis pendant les fermetures des gyms Québec
+              </p>
+            </div>
           </div>
+          <div class="row border border-4"> 
+            <div class="global-sm">
+              <p>Graph global des sports dans cette boite</p>
+              <!-- Put the global sport div right here -->
+            </div>
+          </div> 
         </div>
-        <div class="col">
+        <div class="col border border-4">
           <div id="covid-svg"></div>
         </div>
       </div>
-      <div id="smallMultiple-svg"></div>
+      <div id="smallMultiple-svg" class="border border-4"></div>
     </div>
   </main>
   <script src="https://d3js.org/d3.v5.js"></script>
