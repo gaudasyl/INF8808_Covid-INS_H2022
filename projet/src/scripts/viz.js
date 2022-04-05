@@ -13,13 +13,14 @@ const CASES_COLOR = '#E83A14'
 const DEATH_COLOR = '#890F0D'
 const HOSPI_COLOR = '#373636'
 
+var selectedDate
 
 /**
  * @param data
  * @param startDate
  * @param endDate
  */
-export function DrawCount(data, startDate, endDate) {
+export function DrawCount (data, startDate, endDate) {
     console.log('--- Counter ---')
     let saved = 0
     let total = 0
@@ -34,9 +35,11 @@ export function DrawCount(data, startDate, endDate) {
 }
 
 /**
- *
+ * @param data
+ * @param startDate
+ * @param endDate
  */
-export function DrawCovidViz(data, startDate, endDate) {
+export function DrawCovidViz (data, startDate, endDate) {
     console.log(data)
 
     var svg = d3.select('#covid-svg')
@@ -50,10 +53,10 @@ export function DrawCovidViz(data, startDate, endDate) {
     // Add X axis --> it is a date format
     var x = d3.scaleTime()
         .domain(d3.extent(data, function (d) { return new Date(d.date) }))
-        .range([0, COVID_WIDTH]);
-    svg.append("g")
-        .attr("transform", "translate(0," + COVID_HEIGHT + ")")
-        .call(d3.axisBottom(x));
+        .range([0, COVID_WIDTH])
+    svg.append('g')
+        .attr('transform', 'translate(0,' + COVID_HEIGHT + ')')
+        .call(d3.axisBottom(x))
 
     // Add Y axis
     var y = d3.scaleLinear()
@@ -61,41 +64,40 @@ export function DrawCovidViz(data, startDate, endDate) {
             [0, d3.max(data, function (d) {
                 return Math.max(d.cases_moving_avg, d.death_moving_avg, d.hospi_moving_avg)
             })])
-        .range([COVID_HEIGHT, 0]);
-    svg.append("g")
-        .call(d3.axisLeft(y));
+        .range([COVID_HEIGHT, 0])
+    svg.append('g')
+        .call(d3.axisLeft(y))
 
     // Add the lines
-    svg.append("path")
+    svg.append('path')
         .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", CASES_COLOR)
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr('fill', 'none')
+        .attr('stroke', CASES_COLOR)
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
             .x(function (d) { return x(new Date(d.date)) })
             .y(function (d) { return y(d.cases_moving_avg) })
         )
 
-    svg.append("path")
+    svg.append('path')
         .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", DEATH_COLOR)
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr('fill', 'none')
+        .attr('stroke', DEATH_COLOR)
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
             .x(function (d) { return x(new Date(d.date)) })
             .y(function (d) { return y(d.death_moving_avg) })
         )
 
-    svg.append("path")
+    svg.append('path')
         .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", HOSPI_COLOR)
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr('fill', 'none')
+        .attr('stroke', HOSPI_COLOR)
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
             .x(function (d) { return x(new Date(d.date)) })
             .y(function (d) { return y(d.hospi_moving_avg) })
         )
-
 
     console.log(svg)
 }
@@ -105,8 +107,7 @@ export function DrawCovidViz(data, startDate, endDate) {
  * @param startDate
  * @param endDate
  */
-export function DrawSmallMultiple(data, startDate, endDate) {
-
+export function DrawSmallMultiple (data, startDate, endDate) {
     // group the data: I want to draw one line per group
     var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
         .key(function (d) { return d.sport })
@@ -115,8 +116,8 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     // Order by frequency
     sumstat.sort(
         (a, b) =>
-            d3.sum(a.values.map(o => o.moving_avg))
-            - d3.sum(b.values.map(o => o.moving_avg))
+            d3.sum(a.values.map(o => o.moving_avg)) -
+            d3.sum(b.values.map(o => o.moving_avg))
     ).reverse()
 
     // Limit minimum number of visits
@@ -158,6 +159,26 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('class', 'y-axis')
         .call(d3.axisLeft(y).ticks(5))
 
+      // This allows to find the closest X index of the mouse:
+  var bisect = d3.bisector(function (d) { return d.date }).left
+
+  // Create the circle that travels along the curve of chart
+  var focus = svg
+    .append('g')
+    .append('circle')
+      .style('fill', 'none')
+      .attr('stroke', 'black')
+      .attr('r', 8.5)
+      .style('opacity', 0)
+
+  // Create the text that travels along the curve of chart
+  var focusText = svg
+    .append('g')
+    .append('text')
+      .style('opacity', 0)
+      .attr('text-anchor', 'left')
+      .attr('alignment-baseline', 'middle')
+
     // Draw the line
     svg.append('path')
         .attr('fill', FREQ_COLOR)
@@ -168,11 +189,62 @@ export function DrawSmallMultiple(data, startDate, endDate) {
                 .y1(function (d) { return y(+d.moving_avg) })(d.values)
         })
 
+    svg.append('rect')
+        .style('fill', 'none')
+        .style('pointer-events', 'all')
+        .attr('width', SM_WIDTH)
+        .attr('height', SM_HEIGHT)
+        .attr('id', function (d) { return d.key })
+        .on('mouseover', mouseover)
+        .on('mousemove', function (d) { mousemove(this, d) })
+        .on('mouseout', mouseout)
+
+  // What happens when the mouse move -> show the annotations at the right positions.
+  /**
+   *
+   */
+  function mouseover () {
+    focus.style('opacity', 1)
+    focusText.style('opacity', 1)
+  }
+
+  /**
+   * @param rect
+   * @param d
+   */
+  function mousemove (rect, d) {
+    // recover coordinate we need
+    var dateOfMousPos = x.invert(d3.mouse(rect)[0])
+    selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
+    
+    
+    const selectedData = d.values.find(element => element.date === selectedDate)
+
+    focus
+      .attr('cx', x(new Date(selectedData.date)))
+      .attr('cy', y(selectedData.moving_avg))
+    focusText
+      .html('Date:' + selectedData.date + 'Moving Average:' + selectedData.moving_avg)
+      .attr('x', x(new Date(selectedData.date)))
+      .attr('y', y(selectedData.moving_avg))
+    }
+  /**
+   *
+   */
+  function mouseout () {
+    focus.style('opacity', 0)
+    focusText.style('opacity', 0)
+  }
+
     // Add titles
     svg.append('text')
         .attr('text-anchor', 'start')
         .attr('y', -5)
         .attr('x', 0)
-        .classed("sm-title", true)
+        .classed('sm-title', true)
         .text(function (d) { return (d.key) })
+}
+
+export function UpdateHoverViz () {
+
 }
