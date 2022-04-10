@@ -10,7 +10,6 @@ import * as viz from './scripts/viz.js'
  * @version v1.0.0
  */
 
-
 // start and end dates to define
 const startDate = new Date(2020, 0, 1);
 const endDate = new Date(2022, 0, 1);

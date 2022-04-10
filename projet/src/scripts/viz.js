@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable indent */
 
 const MARGIN = { top: 30, right: 0, bottom: 30, left: 50 }
@@ -12,6 +13,9 @@ const FREQ_COLOR = '#E83A14'
 const CASES_COLOR = '#E83A14'
 const DEATH_COLOR = '#890F0D'
 const HOSPI_COLOR = '#373636'
+const COVID_STROKE_WIDTH = 2.5
+const FREQ_STROKE_WIDTH = 1.5
+const HOVER_STROKE_WIDTH = 2
 
 var selectedDate
 
@@ -73,7 +77,7 @@ export function DrawCovidViz (data, startDate, endDate) {
         .datum(data)
         .attr('fill', 'none')
         .attr('stroke', CASES_COLOR)
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', COVID_STROKE_WIDTH)
         .attr('d', d3.line()
             .x(function (d) { return x(new Date(d.date)) })
             .y(function (d) { return y(d.cases_moving_avg) })
@@ -162,26 +166,11 @@ export function DrawSmallMultiple (data, startDate, endDate) {
       // This allows to find the closest X index of the mouse:
   var bisect = d3.bisector(function (d) { return d.date }).left
 
-  // Create the circle that travels along the curve of chart
-  var focus = svg
-    .append('g')
-    .append('circle')
-      .style('fill', 'none')
-      .attr('stroke', 'black')
-      .attr('r', 8.5)
-      .style('opacity', 0)
-
-  // Create the text that travels along the curve of chart
-  var focusText = svg
-    .append('g')
-    .append('text')
-      .style('opacity', 0)
-      .attr('text-anchor', 'left')
-      .attr('alignment-baseline', 'middle')
-
     // Draw the line
     svg.append('path')
-        .attr('fill', FREQ_COLOR)
+        .attr('stroke', FREQ_COLOR)
+        .attr('fill', 'none')
+        .attr('stroke-width', FREQ_STROKE_WIDTH)
         .attr('d', function (d) {
             return d3.area()
                 .x(function (d) { return x(new Date(d.date)) })
@@ -199,42 +188,81 @@ export function DrawSmallMultiple (data, startDate, endDate) {
         .on('mousemove', function (d) { mousemove(this, d) })
         .on('mouseout', mouseout)
 
-  // What happens when the mouse move -> show the annotations at the right positions.
-  /**
-   *
-   */
-  function mouseover () {
-    focus.style('opacity', 1)
-    focusText.style('opacity', 1)
-  }
+    // Create the circle that travels along the curve of chart
+    var focus = svg
+    .append('g')
+    .append('circle')
+    .classed('hover_circle', true)
+    .style('fill', 'none')
+    .attr('stroke', 'black')
+    .attr('stroke-width', HOVER_STROKE_WIDTH)
+    .attr('r', 8.5)
+    .style('opacity', 0)
 
-  /**
-   * @param rect
-   * @param d
-   */
-  function mousemove (rect, d) {
-    // recover coordinate we need
-    var dateOfMousPos = x.invert(d3.mouse(rect)[0])
-    selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
-    
-    
-    const selectedData = d.values.find(element => element.date === selectedDate)
+    // Create the text that travels along the curve of chart
+    var focusText = svg
+    .append('g')
+    .append('text')
+    .classed('hover_text', true)
+    .style('opacity', 0)
+    .attr('text-anchor', 'left')
+    .attr('alignment-baseline', 'middle')
 
-    focus
-      .attr('cx', x(new Date(selectedData.date)))
-      .attr('cy', y(selectedData.moving_avg))
-    focusText
-      .html('Date:' + selectedData.date + 'Moving Average:' + selectedData.moving_avg)
-      .attr('x', x(new Date(selectedData.date)))
-      .attr('y', y(selectedData.moving_avg))
+    // What happens when the mouse move -> show the annotations at the right positions.
+    /**
+     *
+     */
+    function mouseover () {
+        focus.style('opacity', 1)
+        focusText.style('opacity', 1)
     }
-  /**
-   *
-   */
-  function mouseout () {
-    focus.style('opacity', 0)
-    focusText.style('opacity', 0)
-  }
+
+    /**
+     * @param rect
+     * @param d
+     */
+    function mousemove (rect) {
+        // recover coordinate we need
+        var dateOfMousPos = x.invert(d3.mouse(rect)[0])
+        selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
+        d3.select('#hover-date').text('hovered date: ' + selectedDate)
+
+        d3.selectAll('.hover_circle')
+            .attr('cx', data => x(new Date(data.values.find(element => element.date === selectedDate).date)))
+            .attr('cy', data => y(data.values.find(element => element.date === selectedDate).moving_avg))
+
+        const textOffsetX = 10
+        const textOffsetY = 20
+
+        d3.selectAll('.hover_text')
+        .attr('x', function (data) {
+            const hoverData = data.values.find(element => element.date === selectedDate)
+            const xPos = x(new Date(hoverData.date))
+            if (xPos > SM_WIDTH / 2) {
+                return xPos - 4 * textOffsetX
+            } else {
+                return xPos + textOffsetX
+            }
+        })
+        .attr('y', function (data) {
+            const hoverData = data.values.find(element => element.date === selectedDate)
+            return y(hoverData.moving_avg) - textOffsetY
+        })
+        .html(function (data) {
+            const hoverData = data.values.find(element => element.date === selectedDate)
+            return (hoverData.moving_avg)
+            })
+        .style('font-weight', 'bold')
+    }
+
+    /**
+     *
+     */
+    function mouseout () {
+        focus.style('opacity', 0)
+        focusText.style('opacity', 0)
+        d3.select('#hover-date').text('hovered date: None')
+    }
 
     // Add titles
     svg.append('text')
