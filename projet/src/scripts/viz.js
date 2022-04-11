@@ -24,6 +24,8 @@ var yScaleSM
 var xScaleCov
 var yScaleCov
 
+var covid_data_selected = 'cases'
+
 /**
  * @param data
  * @param startDate
@@ -44,13 +46,19 @@ export function DrawCount (data, startDate, endDate) {
 }
 
 /**
+ *
+ */
+export function ChangeCovidSelect () {
+    let selector = document.getElementById('covid_data_select')
+    covid_data_selected = selector.options[selector.selectedIndex].value
+}
+
+/**
  * @param data
  * @param startDate
  * @param endDate
  */
 export function DrawCovidViz (data, startDate, endDate) {
-    console.log(data)
-
     var svg = d3.select('#covid-svg')
         .append('svg')
         .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
@@ -120,8 +128,7 @@ export function DrawCovidViz (data, startDate, endDate) {
         .on('mouseout', mouseout)
 
     // Create the circle that travels along the curve of chart
-    var focus = svg
-    .append('g')
+    svg.append('g')
     .append('circle')
     .datum(data)
     .classed('hover_circle_covid', true)
@@ -132,8 +139,7 @@ export function DrawCovidViz (data, startDate, endDate) {
     .style('opacity', 0)
 
     // Create the text that travels along the curve of chart
-    var focusText = svg
-    .append('g')
+    svg.append('g')
     .append('text')
     .datum(data)
     .classed('hover_text_covid', true)
@@ -252,8 +258,7 @@ export function DrawSmallMultiple (data, startDate, endDate) {
         .on('mouseout', mouseout)
 
     // Create the circle that travels along the curve of chart
-    var focus = svg
-    .append('g')
+    svg.append('g')
     .append('circle')
     .classed('hover_circle', true)
     .style('fill', 'none')
@@ -263,8 +268,7 @@ export function DrawSmallMultiple (data, startDate, endDate) {
     .style('opacity', 0)
 
     // Create the text that travels along the curve of chart
-    var focusText = svg
-    .append('g')
+    svg.append('g')
     .append('text')
     .classed('hover_text', true)
     .style('opacity', 0)
@@ -307,12 +311,18 @@ export function DrawSmallMultiple (data, startDate, endDate) {
         .text(function (d) { return (d.key) })
 }
 
+/**
+ *
+ */
 function UpdateHover () {
     d3.select('#hover-date').text('hovered date: ' + selectedDate)
     UpdateHoverSMViz()
     UpdateHoverCovid()
 }
 
+/**
+ *
+ */
 function UpdateHoverSMViz () {
     d3.selectAll('.hover_circle')
         .attr('cx', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
@@ -341,6 +351,9 @@ function UpdateHoverSMViz () {
         })
 }
 
+/**
+ *
+ */
 function UpdateHoverCovid () {
    d3.select('.hover_circle_covid')
         .attr('cx', data => xScaleCov(new Date(data.find(element => element.date === selectedDate).date)))
@@ -367,6 +380,9 @@ function UpdateHoverCovid () {
             })
 }
 
+/**
+ * @param opacity
+ */
 function ShowHoverTextAndCircles (opacity) {
     d3.selectAll('.hover_text').style('opacity', opacity)
     d3.selectAll('.hover_circle').style('opacity', opacity)
