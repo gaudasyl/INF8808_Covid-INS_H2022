@@ -23,6 +23,11 @@ const GRIDLINE_COLOR = '#C4C4C4'
 
 var selectedDate
 
+const MIN_DATE_SELECTION_DAYS = 30
+
+var mousedownDate
+var isMouseDown = false
+
 var xScaleSM
 var yScaleSM
 var xScaleCov
@@ -138,6 +143,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .on('mouseover', function () { OnGymClosedHover(this, 1) })
         .on('mouseout', function () { OnGymClosedHover(this, 0.5) })
 
+    // Event listeners
     svg.append('rect')
         .datum(data)
         .style('fill', 'none')
@@ -149,6 +155,25 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .on('mouseover', mouseover)
         .on('mousemove', function (d) { mousemove(this, d) })
         .on('mouseout', mouseout)
+        .on('mousedown', function (d) { mousedown(this, d) })
+        .on('mouseup', mouseup)
+
+    // ceate time windows
+    svg.append('rect')
+        .style('pointer-events', 'none')
+        .style('fill', GRIDLINE_COLOR)
+        .style('opacity', 0.4)
+        .attr('class', 'time-window-left')
+        .attr('height', COVID_HEIGHT)
+        .attr('width', 0)
+    svg.append('rect')
+        .style('pointer-events', 'none')
+        .style('fill', GRIDLINE_COLOR)
+        .style('opacity', 0.4)
+        .attr('x', COVID_WIDTH)
+        .attr('class', 'time-window-right')
+        .attr('height', COVID_HEIGHT)
+        .attr('width', 0)
 
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
@@ -167,13 +192,24 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         var dateOfMousPos = xScaleCov.invert(d3.mouse(rect)[0])
         selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
         UpdateHover()
+
+        if (isMouseDown) {
+            UpdateTimeWindow()
+        }
     }
 
-    /**
-     *
-     */
     function mouseout() {
         ShowHoverTextAndCircles(0)
+        isMouseDown = false
+    }
+
+    function mouseup() {
+        isMouseDown = false
+    }
+    function mousedown(rect) {
+        var dateOfMousPos = xScaleCov.invert(d3.mouse(rect)[0])
+        mousedownDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
+        isMouseDown = true
     }
 
     function updateSelection() {
@@ -288,6 +324,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
                 .y(function (d) { return yScaleSM(+d.moving_avg) })(d.values)
         })
 
+    // Create even listener
     svg.append('rect')
         .style('fill', 'none')
         .style('pointer-events', 'all')
@@ -359,6 +396,27 @@ function UpdateHover() {
     d3.select('#hover-date').text('hovered date: ' + selectedDate)
     UpdateHoverSMViz()
     UpdateHoverCovid()
+}
+
+function UpdateTimeWindow() {
+    var a = new Date(mousedownDate)
+    var b = new Date(selectedDate)
+    var leftDate = a < b ? a : b
+    var rightDate = a > b ? a : b
+
+    var timeDelta = rightDate - leftDate
+    var daysDelta = Math.ceil(timeDelta / (1000 * 60 * 60 * 24))
+    if (daysDelta < MIN_DATE_SELECTION_DAYS) {
+        daysToAdd = (MIN_DATE_SELECTION_DAYS - daysDelta) / 2
+        leftDate.addDays(daysToAdd)
+        rightDate.addDays(daysToAdd)
+    }
+
+    d3.select('.time-window-left')
+        .attr('width', xScaleCov(leftDate))
+    d3.select('.time-window-right')
+        .attr('x', xScaleCov(rightDate))
+        .attr('width', COVID_WIDTH - xScaleCov(rightDate))
 }
 
 /**
