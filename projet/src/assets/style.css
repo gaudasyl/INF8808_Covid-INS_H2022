@@ -24,8 +24,14 @@ main {
     display: none;
 }
 
-
-
 .sm-title {
     font-size: small;
+}
+
+.hover_circle {
+    stroke: #E83A14;
+}
+
+.smallMultiple .y-axis-grid .domain path {
+    display: none;
 }
