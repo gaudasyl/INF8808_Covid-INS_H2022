@@ -53,12 +53,16 @@ export function ChangeCovidSelect () {
     covid_data_selected = selector.options[selector.selectedIndex].value
 }
 
+function OnGymClosedHover (rect, opacity) {
+    d3.select(rect).attr('opacity', opacity)
+}
+
 /**
  * @param data
  * @param startDate
  * @param endDate
  */
-export function DrawCovidViz (data, startDate, endDate) {
+export function DrawCovidViz (data, dataFermetures, startDate, endDate) {
     var svg = d3.select('#covid-svg')
         .append('svg')
         .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
@@ -84,6 +88,21 @@ export function DrawCovidViz (data, startDate, endDate) {
         .range([COVID_HEIGHT, 0])
     svg.append('g')
         .call(d3.axisLeft(yScaleCov))
+
+    svg.append('g')
+    .classed('fermetures_gym', true)
+    .selectAll('rect')
+    .data(dataFermetures)
+    .enter()
+    .append('rect')
+    .attr('x', element => xScaleCov(element.start))
+    .attr('y', 0)
+    .attr('width', element => xScaleCov(element.end) - xScaleCov(element.start))
+    .attr('height', 30)
+    .attr('fill', 'grey')
+    .attr('opacity', 0.5)
+    .on('mouseover', function () { OnGymClosedHover(this, 1) })
+    .on('mouseout', function () { OnGymClosedHover(this, 0.5) })
 
     // Add the lines
     svg.append('path')
@@ -120,8 +139,9 @@ export function DrawCovidViz (data, startDate, endDate) {
         .datum(data)
         .style('fill', 'none')
         .style('pointer-events', 'all')
+        .attr('y', 30)
         .attr('width', COVID_WIDTH)
-        .attr('height', COVID_HEIGHT)
+        .attr('height', COVID_HEIGHT - 30)
         .attr('id', 'covid')
         .on('mouseover', mouseover)
         .on('mousemove', function (d) { mousemove(this, d) })

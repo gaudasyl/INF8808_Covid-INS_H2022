@@ -10,6 +10,13 @@ import * as viz from './scripts/viz.js'
  * @version v1.0.0
  */
 
+const fermeturesGym = [
+    { start: new Date('2020-03-15'), end: new Date('2020-06-21') },
+    { start: new Date('2020-10-08'), end: new Date('2021-03-21') },
+    { start: new Date('2021-04-08'), end: new Date('2021-06-06') },
+    { start: new Date('2021-12-20'), end: new Date('2022-02-13') }
+]
+
 // start and end dates to define
 const startDate = new Date(2020, 0, 1)
 const endDate = new Date(2022, 0, 1)
@@ -24,7 +31,7 @@ document.getElementById('covid_data_select').onchange = ChangeCovidSelect;
     })
 
     d3.csv('./merged_covid_dataset.csv').then((data) => {
-        viz.DrawCovidViz(data, startDate, endDate)
+        viz.DrawCovidViz(data, fermeturesGym, startDate, endDate)
     })
 })(d3)
 
