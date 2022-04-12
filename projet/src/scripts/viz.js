@@ -157,7 +157,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .datum(data)
         .classed('hover_circle_covid', true)
         .style('fill', CASES_COLOR)
-        .attr('r', HOVER_CIRCLE_RADIUS)
+        .attr('r', 3)
         .style('opacity', 0)
 
     // Create the text that travels along the curve of chart
