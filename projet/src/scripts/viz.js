@@ -52,9 +52,11 @@ export function DrawCount(data, startDate, endDate) {
 /**
  *
  */
-export function ChangeCovidSelect() {
-    let selector = document.getElementById('covid_data_select')
-    covid_data_selected = selector.options[selector.selectedIndex].value
+
+const SELECTOR_TO_ATTR = {
+    'cases': 'cases_moving_avg',
+    'deaths': 'death_moving_avg',
+    'hospitalisations': 'hospi_moving_avg'
 }
 
 function OnGymClosedHover(rect, opacity) {
@@ -85,14 +87,42 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
 
     // Add Y axis
     yScaleCov = d3.scaleLinear()
-        .domain(
-            [0, d3.max(data, function (d) {
-                return Math.max(d.cases_moving_avg, d.death_moving_avg, d.hospi_moving_avg)
-            })])
+        .domain([0, d3.max(data, (d) => Math.max(d.cases_moving_avg))])
         .range([COVID_HEIGHT, 0])
-    svg.append('g')
+    var yAxis = svg.append('g')
         .call(d3.axisLeft(yScaleCov))
 
+    // Add the cases line
+    var line = svg.append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', CASES_COLOR)
+        .attr('stroke-width', COVID_STROKE_WIDTH)
+        .attr('d', d3.line()
+            .x(function (d) { return xScaleCov(new Date(d.date)) })
+            .y(function (d) { return yScaleCov(d.cases_moving_avg) })
+        )
+
+    // Create the circle that travels along the curve of chart
+    var circle = svg.append('g')
+        .append('circle')
+        .datum(data)
+        .classed('hover_circle_covid', true)
+        .style('fill', CASES_COLOR)
+        .attr('r', 3)
+        .style('opacity', 0)
+
+    // Create the text that travels along the curve of chart
+    var text = svg.append('g')
+        .append('text')
+        .datum(data)
+        .classed('hover_text_covid', true)
+        .style('opacity', 0)
+        .attr('text-anchor', 'left')
+        .attr('alignment-baseline', 'middle')
+        .style('font-weight', 'bold')
+
+    // Add closed gyms
     svg.append('g')
         .classed('fermetures_gym', true)
         .selectAll('rect')
@@ -108,37 +138,6 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .on('mouseover', function () { OnGymClosedHover(this, 1) })
         .on('mouseout', function () { OnGymClosedHover(this, 0.5) })
 
-    // Add the lines
-    svg.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', CASES_COLOR)
-        .attr('stroke-width', COVID_STROKE_WIDTH)
-        .attr('d', d3.line()
-            .x(function (d) { return xScaleCov(new Date(d.date)) })
-            .y(function (d) { return yScaleCov(d.cases_moving_avg) })
-        )
-
-    svg.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', DEATH_COLOR)
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-            .x(function (d) { return xScaleCov(new Date(d.date)) })
-            .y(function (d) { return yScaleCov(d.death_moving_avg) })
-        )
-
-    svg.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', HOSPI_COLOR)
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-            .x(function (d) { return xScaleCov(new Date(d.date)) })
-            .y(function (d) { return yScaleCov(d.hospi_moving_avg) })
-        )
-
     svg.append('rect')
         .datum(data)
         .style('fill', 'none')
@@ -150,25 +149,6 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .on('mouseover', mouseover)
         .on('mousemove', function (d) { mousemove(this, d) })
         .on('mouseout', mouseout)
-
-    // Create the circle that travels along the curve of chart
-    svg.append('g')
-        .append('circle')
-        .datum(data)
-        .classed('hover_circle_covid', true)
-        .style('fill', CASES_COLOR)
-        .attr('r', 3)
-        .style('opacity', 0)
-
-    // Create the text that travels along the curve of chart
-    svg.append('g')
-        .append('text')
-        .datum(data)
-        .classed('hover_text_covid', true)
-        .style('opacity', 0)
-        .attr('text-anchor', 'left')
-        .attr('alignment-baseline', 'middle')
-        .style('font-weight', 'bold')
 
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
@@ -195,6 +175,37 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     function mouseout() {
         ShowHoverTextAndCircles(0)
     }
+
+    function updateSelection() {
+        var selector = document.getElementById('covid_data_select')
+        var selection = selector.options[selector.selectedIndex].value
+
+        var attribute = SELECTOR_TO_ATTR[selection]
+
+        // update scale
+        yScaleCov = d3.scaleLinear()
+            .domain([0, d3.max(data, (d) => Math.max(d[attribute]))])
+            .range([COVID_HEIGHT, 0])
+
+        // update line
+        line
+            .datum(data)
+            .transition()
+            .duration(500)
+            .attr('d', d3.line()
+                .x(function (d) { return xScaleCov(new Date(d.date)) })
+                .y(function (d) { return yScaleCov(d[attribute]) })
+            )
+
+        // update axis
+        yAxis
+            .transition()
+            .duration(500)
+            .call(d3.axisLeft(yScaleCov))
+    }
+
+    d3.select("#covid_data_select").on("change", updateSelection)
+
 }
 
 /**
@@ -335,6 +346,8 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('text-anchor', 'start')
         .attr('y', -5)
         .attr('x', 0)
+        .attr('font-size', 18)
+        .attr('font-weight', 'bold')
         .classed('sm-title', true)
         .text(function (d) { return (d.key) })
 }
@@ -383,9 +396,16 @@ function UpdateHoverSMViz() {
  *
  */
 function UpdateHoverCovid() {
+
+    var selector = document.getElementById('covid_data_select')
+    var selection = selector.options[selector.selectedIndex].value
+
+    var attribute = SELECTOR_TO_ATTR[selection]
+
+
     d3.select('.hover_circle_covid')
         .attr('cx', data => xScaleCov(new Date(data.find(element => element.date === selectedDate).date)))
-        .attr('cy', data => yScaleCov(data.find(element => element.date === selectedDate).cases_moving_avg))
+        .attr('cy', data => yScaleCov(data.find(element => element.date === selectedDate)[attribute]))
     const textOffsetX = 10
     const textOffsetY = 20
     d3.selectAll('.hover_text_covid')
@@ -400,11 +420,11 @@ function UpdateHoverCovid() {
         })
         .attr('y', function (data) {
             const hoverData = data.find(element => element.date === selectedDate)
-            return yScaleCov(hoverData.cases_moving_avg) - textOffsetY
+            return yScaleCov(hoverData[attribute]) - textOffsetY
         })
         .html(function (data) {
             const hoverData = data.find(element => element.date === selectedDate)
-            return Math.round(hoverData.cases_moving_avg)
+            return Math.round(hoverData[attribute])
         })
 }
 

@@ -10,22 +10,10 @@ main {
     font-size: small;
 }
 
-.smallMultiple {
-    position: relative;
-    float: left;
-    padding: 2em;
-    margin: 0.5em;
-    background-color: rgba(248, 247, 246, 0.925)
-}
-
 #smallMultiple-svg .x-axis .tick line,
 #smallMultiple-svg .y-axis .domain,
 #smallMultiple-svg .y-axis .tick line {
     display: none;
-}
-
-.sm-title {
-    font-size: small;
 }
 
 .hover_circle {

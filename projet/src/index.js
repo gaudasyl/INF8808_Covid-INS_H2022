@@ -21,7 +21,7 @@ const fermeturesGym = [
 const startDate = new Date(2020, 0, 1)
 const endDate = new Date(2022, 0, 1)
 
-document.getElementById('covid_data_select').onchange = ChangeCovidSelect;
+console.log('test');
 
 (function (d3) {
     d3.csv('./moving_avg_dataset.csv').then(function (data) {
@@ -34,9 +34,3 @@ document.getElementById('covid_data_select').onchange = ChangeCovidSelect;
         viz.DrawCovidViz(data, fermeturesGym, startDate, endDate)
     })
 })(d3)
-
-function ChangeCovidSelect () {
-    const selector = document.getElementById('covid_data_select')
-    const dataToDisplay = selector.options[selector.selectedIndex].value
-    console.log('we should now display ' + dataToDisplay)
-}
