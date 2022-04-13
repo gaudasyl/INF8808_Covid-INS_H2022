@@ -9,10 +9,7 @@ const SM_HEIGHT = 275 - MARGIN.top - MARGIN.bottom
 const COVID_WIDTH = 700 - MARGIN.left - MARGIN.right
 const COVID_HEIGHT = 400 - MARGIN.top - MARGIN.bottom
 
-const FREQ_COLOR = '#E83A14'
-const CASES_COLOR = '#E83A14'
-const DEATH_COLOR = '#890F0D'
-const HOSPI_COLOR = '#373636'
+const LINE_COLOR = '#E83A14'
 
 const COVID_STROKE_WIDTH = 1.5
 const FREQ_STROKE_WIDTH = 1
@@ -41,7 +38,6 @@ var covid_data_selected = 'cases'
  * @param endDate
  */
 export function DrawCount(data, startDate, endDate) {
-    console.log('--- Counter ---')
     let saved = 0
     let total = 0
     data.forEach(element => {
@@ -101,7 +97,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     var line = svg.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', CASES_COLOR)
+        .attr('stroke', LINE_COLOR)
         .attr('stroke-width', COVID_STROKE_WIDTH)
         .attr('d', d3.line()
             .x(function (d) { return xScaleCov(new Date(d.date)) })
@@ -113,7 +109,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .append('circle')
         .datum(data)
         .classed('hover_circle_covid', true)
-        .style('fill', CASES_COLOR)
+        .style('fill', LINE_COLOR)
         .attr('r', 3)
         .style('opacity', 0)
 
@@ -241,7 +237,6 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     }
 
     d3.select("#covid_data_select").on("change", updateSelection)
-
 }
 
 /**
@@ -289,7 +284,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .domain(d3.extent(data, function (d) { return new Date(d.date) }))
         .range([0, SM_WIDTH])
     svg.append('g')
-        .attr('class', 'x-axis')
+        .attr('class', 'x-axis-small-multiple')
         .attr('transform', 'translate(0,' + SM_HEIGHT + ')')
         .call(d3.axisBottom(xScaleSM).ticks(2))
 
@@ -315,7 +310,8 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     // Draw the line
     svg.append('path')
-        .attr('stroke', FREQ_COLOR)
+        .attr('class', 'small-multiple-line')
+        .attr('stroke', LINE_COLOR)
         .attr('fill', 'none')
         .attr('stroke-width', FREQ_STROKE_WIDTH)
         .attr('d', function (d) {
@@ -339,7 +335,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     svg.append('g')
         .append('circle')
         .classed('hover_circle', true)
-        .style('fill', FREQ_COLOR)
+        .style('fill', LINE_COLOR)
         .attr('r', HOVER_CIRCLE_RADIUS)
         .style('opacity', 0)
 
@@ -404,20 +400,50 @@ function UpdateTimeWindow() {
     var leftDate = a < b ? a : b
     var rightDate = a > b ? a : b
 
-    var timeDelta = rightDate - leftDate
-    var daysDelta = Math.ceil(timeDelta / (1000 * 60 * 60 * 24))
-    if (daysDelta < MIN_DATE_SELECTION_DAYS) {
-        daysToAdd = (MIN_DATE_SELECTION_DAYS - daysDelta) / 2
-        leftDate.addDays(daysToAdd)
-        rightDate.addDays(daysToAdd)
-    }
+    selectedDate = [leftDate, rightDate]
+
+    // var timeDelta = rightDate - leftDate
+    // var daysDelta = Math.ceil(timeDelta / (1000 * 60 * 60 * 24))
+    // if (daysDelta < MIN_DATE_SELECTION_DAYS) {
+    //     var daysToAdd = (MIN_DATE_SELECTION_DAYS - daysDelta) / 2
+    //     leftDate.addDays(daysToAdd)
+    //     rightDate.addDays(daysToAdd)
+    // }
 
     d3.select('.time-window-left')
         .attr('width', xScaleCov(leftDate))
     d3.select('.time-window-right')
         .attr('x', xScaleCov(rightDate))
         .attr('width', COVID_WIDTH - xScaleCov(rightDate))
+
+    UpdateTimeSM()
 }
+
+function UpdateTimeSM() {
+    // update xScale
+    xScaleSM.domain(selectedDate)
+
+    // update xaxis
+    d3.selectAll('.x-axis-small-multiple')
+        .transition()
+        .duration(5)
+        .call(d3.axisBottom(xScaleSM).ticks(2))
+
+    // update line
+    function filterDateString(d) {
+        var date = new Date(d.date);
+        return selectedDate[0] <= date & date <= selectedDate[1]
+    }
+    d3.selectAll('.small-multiple-line')
+        .transition().duration(5).attr('d', function (d) {
+            return d3.line()
+                .x(function (d) { return xScaleSM(new Date(d.date)) })
+                .y(function (d) { return yScaleSM(+d.moving_avg) })
+                (d.values.filter((d) => filterDateString(d)))
+        })
+}
+
+
 
 /**
  *
