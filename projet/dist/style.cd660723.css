@@ -1,0 +1,27 @@
+main {
+    background-color: rgb(190, 188, 188);
+}
+
+#main-container {
+    background-color: white;
+}
+
+#count-title {
+    font-size: small;
+}
+
+#smallMultiple-svg .x-axis .tick line,
+#smallMultiple-svg .y-axis .domain,
+#smallMultiple-svg .y-axis .tick line {
+    display: none;
+}
+
+.hover_circle {
+    stroke: #E83A14;
+}
+
+.smallMultiple .y-axis-grid .domain path {
+    display: none;
+}
+
+/*# sourceMappingURL=/style.cd660723.css.map */
