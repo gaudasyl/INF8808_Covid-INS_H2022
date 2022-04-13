@@ -97,12 +97,14 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     var line = svg.append('path')
         .datum(data)
         .style('pointer-events', 'none')
-        .attr('fill', 'none')
+        .attr('fill', LINE_COLOR)
+        .attr('fill-opacity', 0.2)
         .attr('stroke', LINE_COLOR)
         .attr('stroke-width', COVID_STROKE_WIDTH)
-        .attr('d', d3.line()
+        .attr('d', d3.area()
             .x(function (d) { return xScaleCov(new Date(d.date)) })
-            .y(function (d) { return yScaleCov(d.cases_moving_avg) })
+            .y1(function (d) { return yScaleCov(d.cases_moving_avg) })
+            .y0(yScaleCov(0))
         )
 
     // Create the circle that travels along the curve of chart
@@ -225,9 +227,10 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
             .datum(data)
             .transition()
             .duration(500)
-            .attr('d', d3.line()
+            .attr('d', d3.area()
                 .x(function (d) { return xScaleCov(new Date(d.date)) })
-                .y(function (d) { return yScaleCov(d[attribute]) })
+                .y1(function (d) { return yScaleCov(d[attribute]) })
+                .y0(yScaleCov(0))
             )
 
         // update axis
