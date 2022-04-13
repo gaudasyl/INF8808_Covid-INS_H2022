@@ -96,6 +96,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     // Add the cases line
     var line = svg.append('path')
         .datum(data)
+        .style('pointer-events', 'none')
         .attr('fill', 'none')
         .attr('stroke', LINE_COLOR)
         .attr('stroke-width', COVID_STROKE_WIDTH)
@@ -311,6 +312,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     // Draw the line
     svg.append('path')
         .attr('class', 'small-multiple-line')
+        .style('pointer-events', 'none')
         .attr('stroke', LINE_COLOR)
         .attr('fill', 'none')
         .attr('stroke-width', FREQ_STROKE_WIDTH)
