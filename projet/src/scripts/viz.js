@@ -368,7 +368,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .classed('hover-x-axis-line', true)
         .style('opacity', 0)
         .attr('width', 1)
-        .attr('fill', '#868686')
+        .attr('fill', '#b5b5b5')
         .attr('y', SM_HEIGHT)
     text.append('text')
         .classed('hover-text', true)
