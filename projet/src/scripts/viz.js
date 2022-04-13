@@ -83,6 +83,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .domain(d3.extent(data, function (d) { return new Date(d.date) }))
         .range([0, COVID_WIDTH])
     svg.append('g')
+        .attr('class', 'x-axis')
         .attr('transform', 'translate(0,' + COVID_HEIGHT + ')')
         .call(d3.axisBottom(xScaleCov))
 
@@ -91,7 +92,17 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .domain([0, d3.max(data, (d) => Math.max(d.cases_moving_avg))])
         .range([COVID_HEIGHT, 0])
     var yAxis = svg.append('g')
+        .attr('class', 'y-axis')
         .call(d3.axisLeft(yScaleCov))
+
+    // Add Y grid
+    const yAxisGrid = d3.axisLeft(yScaleCov).tickSize(-COVID_WIDTH).tickFormat('')
+    svg.append('g')
+        .attr('class', 'y-axis-grid')
+        .attr('color', GRIDLINE_COLOR)
+        .attr('stroke-width', GRIDLINE_STROKE_WIDTH)
+        .call(yAxisGrid)
+        .call(g => g.select(".domain").remove());
 
     // Add the cases line
     var line = svg.append('path')
