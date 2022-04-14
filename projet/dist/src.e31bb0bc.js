@@ -146,8 +146,11 @@ var FREQ_STROKE_WIDTH = 1;
 var HOVER_CIRCLE_RADIUS = 2;
 var GRIDLINE_STROKE_WIDTH = 0.5;
 var GRIDLINE_COLOR = '#C4C4C4';
-var selectedDate;
+var FIRST_INS_DATE = new Date('2020-06-22');
+var LAST_INS_DATE = new Date('2022-02-12');
+var dateRange = [FIRST_INS_DATE, LAST_INS_DATE];
 var MIN_DATE_SELECTION_DAYS = 30;
+var selectedDate;
 var mousedownDate;
 var isMouseDown = false;
 var xScaleSM;
@@ -155,6 +158,7 @@ var yScaleSM;
 var xScaleCov;
 var yScaleCov;
 var covid_data_selected = 'cases';
+var showAll = false;
 /**
  * @param data
  * @param startDate
@@ -201,12 +205,17 @@ function DrawCovidViz(data, dataFermetures, startDate, endDate) {
   xScaleCov = d3.scaleTime().domain(d3.extent(data, function (d) {
     return new Date(d.date);
   })).range([0, COVID_WIDTH]);
-  svg.append('g').attr('transform', 'translate(0,' + COVID_HEIGHT + ')').call(d3.axisBottom(xScaleCov)); // Add Y axis
+  svg.append('g').attr('class', 'x-axis').attr('transform', 'translate(0,' + COVID_HEIGHT + ')').call(d3.axisBottom(xScaleCov)); // Add Y axis
 
   yScaleCov = d3.scaleLinear().domain([0, d3.max(data, function (d) {
     return Math.max(d.cases_moving_avg);
   })]).range([COVID_HEIGHT, 0]);
-  var yAxis = svg.append('g').call(d3.axisLeft(yScaleCov)); // Add the cases line
+  var yAxis = svg.append('g').attr('class', 'y-axis').call(d3.axisLeft(yScaleCov)); // Add Y grid
+
+  var yAxisGrid = d3.axisLeft(yScaleCov).tickSize(-COVID_WIDTH).tickFormat('');
+  svg.append('g').attr('class', 'y-axis-grid').attr('color', GRIDLINE_COLOR).attr('stroke-width', GRIDLINE_STROKE_WIDTH).call(yAxisGrid).call(function (g) {
+    return g.select(".domain").remove();
+  }); // Add the cases line
 
   var line = svg.append('path').datum(data).style('pointer-events', 'none').attr('fill', LINE_COLOR).attr('fill-opacity', 0.2).attr('stroke', LINE_COLOR).attr('stroke-width', COVID_STROKE_WIDTH).attr('d', d3.area().x(function (d) {
     return xScaleCov(new Date(d.date));
@@ -214,9 +223,9 @@ function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     return yScaleCov(d.cases_moving_avg);
   }).y0(yScaleCov(0))); // Create the circle that travels along the curve of chart
 
-  var circle = svg.append('g').append('circle').datum(data).classed('hover_circle_covid', true).style('fill', LINE_COLOR).attr('r', 3).style('opacity', 0); // Create the text that travels along the curve of chart
+  var circle = svg.append('g').append('circle').datum(data).classed('hover-circle_covid', true).style('fill', LINE_COLOR).attr('r', 3).style('opacity', 0); // Create the text that travels along the curve of chart
 
-  var text = svg.append('g').append('text').datum(data).classed('hover_text_covid', true).style('opacity', 0).attr('text-anchor', 'left').attr('alignment-baseline', 'middle').style('font-weight', 'bold'); // Add closed gyms
+  var text = svg.append('g').append('text').datum(data).classed('hover-text_covid', true).style('opacity', 0).attr('text-anchor', 'left').attr('alignment-baseline', 'middle').style('font-weight', 'bold'); // Add closed gyms
 
   svg.append('g').classed('fermetures_gym', true).selectAll('rect').data(dataFermetures).enter().append('rect').attr('x', function (element) {
     return xScaleCov(element.start);
@@ -234,8 +243,8 @@ function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     mousedown(this, d);
   }).on('mouseup', mouseup); // ceate time windows
 
-  svg.append('rect').style('pointer-events', 'none').style('fill', GRIDLINE_COLOR).style('opacity', 0.4).attr('class', 'time-window-left').attr('height', COVID_HEIGHT).attr('width', 0);
-  svg.append('rect').style('pointer-events', 'none').style('fill', GRIDLINE_COLOR).style('opacity', 0.4).attr('x', COVID_WIDTH).attr('class', 'time-window-right').attr('height', COVID_HEIGHT).attr('width', 0); // What happens when the mouse move -> show the annotations at the right positions.
+  svg.append('rect').style('pointer-events', 'none').style('fill', GRIDLINE_COLOR).style('opacity', 0.4).attr('class', 'time-window-left').attr('height', COVID_HEIGHT).attr('width', xScaleCov(dateRange[0]));
+  svg.append('rect').style('pointer-events', 'none').style('fill', GRIDLINE_COLOR).style('opacity', 0.4).attr('x', COVID_WIDTH).attr('class', 'time-window-right').attr('height', COVID_HEIGHT).attr('x', xScaleCov(LAST_INS_DATE)).attr('width', COVID_WIDTH - xScaleCov(dateRange[1])); // What happens when the mouse move -> show the annotations at the right positions.
 
   /**
    *
@@ -323,7 +332,12 @@ function DrawSmallMultiple(data, startDate, endDate) {
     return d3.sum(a.values.map(function (o) {
       return o.moving_avg;
     })) > VISIT_THRESHOLD;
-  }); // What is the list of groups?
+  }); // Only show some parts of the graph
+
+  if (!showAll) {
+    sumstat = sumstat.slice(0, 4);
+  } // What is the list of groups?
+
 
   var allKeys = sumstat.map(function (d) {
     return d.key;
@@ -331,9 +345,7 @@ function DrawSmallMultiple(data, startDate, endDate) {
 
   var svg = d3.select('#smallMultiple-svg').selectAll('uniqueChart').data(sumstat).enter().append('svg').attr('width', SM_WIDTH + MARGIN.left + MARGIN.right).attr('height', SM_HEIGHT + MARGIN.top + MARGIN.bottom).append('g').attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')'); // Add X axis --> it is a date format
 
-  xScaleSM = d3.scaleTime().domain(d3.extent(data, function (d) {
-    return new Date(d.date);
-  })).range([0, SM_WIDTH]);
+  xScaleSM = d3.scaleTime().domain(dateRange).range([0, SM_WIDTH]);
   svg.append('g').attr('class', 'x-axis-small-multiple').attr('transform', 'translate(0,' + SM_HEIGHT + ')').call(d3.axisBottom(xScaleSM).ticks(2)); // Add Y axis
 
   yScaleSM = d3.scaleLinear().domain([0, Math.ceil(d3.max(data, function (d) {
@@ -344,18 +356,21 @@ function DrawSmallMultiple(data, startDate, endDate) {
   var yAxisGrid = d3.axisLeft(yScaleSM).tickSize(-SM_WIDTH).tickFormat('').ticks(5);
   svg.append('g').attr('class', 'y-axis-grid').attr('color', GRIDLINE_COLOR).attr('stroke-width', GRIDLINE_STROKE_WIDTH).call(yAxisGrid).call(function (g) {
     return g.select(".domain").remove();
-  }); // This allows to find the closest X index of the mouse:
+  }); // Draw the line
 
-  var bisect = d3.bisector(function (d) {
-    return d.date;
-  }).left; // Draw the line
+  function filterDateString(d) {
+    var date = new Date(d.date);
+    return dateRange[0] <= date & date <= dateRange[1];
+  }
 
   svg.append('path').attr('class', 'small-multiple-line').style('pointer-events', 'none').attr('stroke', LINE_COLOR).attr('fill', 'none').attr('stroke-width', FREQ_STROKE_WIDTH).attr('d', function (d) {
     return d3.line().x(function (d) {
       return xScaleSM(new Date(d.date));
     }).y(function (d) {
       return yScaleSM(+d.moving_avg);
-    })(d.values);
+    })(d.values.filter(function (d) {
+      return filterDateString(d);
+    }));
   }); // Create even listener
 
   svg.append('rect').style('fill', 'none').style('pointer-events', 'all').attr('width', SM_WIDTH).attr('height', SM_HEIGHT).attr('id', function (d) {
@@ -364,9 +379,12 @@ function DrawSmallMultiple(data, startDate, endDate) {
     mousemove(this, d);
   }).on('mouseout', mouseout); // Create the circle that travels along the curve of chart
 
-  svg.append('g').append('circle').classed('hover_circle', true).style('fill', LINE_COLOR).attr('r', HOVER_CIRCLE_RADIUS).style('opacity', 0); // Create the text that travels along the curve of chart
+  svg.append('g').append('circle').classed('hover-circle', true).style('fill', LINE_COLOR).attr('r', HOVER_CIRCLE_RADIUS).style('opacity', 0); // Create the text that travels along the curve of chart
 
-  svg.append('g').append('text').classed('hover_text', true).style('opacity', 0).attr('text-anchor', 'left').attr('alignment-baseline', 'middle').style('font-weight', 'bold'); // What happens when the mouse move -> show the annotations at the right positions.
+  var text = svg.append('g').style('pointer-events', 'none');
+  text.append('rect').classed('hover-text-bg', true).style('opacity', 0).attr('width', 50).attr('height', 40).attr('fill', '#EFEFEF');
+  text.append('rect').classed('hover-x-axis-line', true).style('opacity', 0).attr('width', 1).attr('fill', '#b5b5b5').attr('y', SM_HEIGHT);
+  text.append('text').classed('hover-text', true).style('opacity', 0).attr('text-anchor', 'left').attr('alignment-baseline', 'middle').style('font-weight', 'bold'); // What happens when the mouse move -> show the annotations at the right positions.
 
   /**
    *
@@ -413,16 +431,17 @@ function DrawSmallMultiple(data, startDate, endDate) {
     var minDateFormatted = "".concat(minDate.getFullYear(), "-").concat(String(minDate.getMonth() + 1).padStart(2, '0'), "-").concat(String(minDate.getDate()).padStart(2, '0'));
     var maxDate = d3.max(xScaleSM.ticks());
     var maxDateFormatted = "".concat(maxDate.getFullYear(), "-").concat(String(maxDate.getMonth() + 1).padStart(2, '0'), "-").concat(String(maxDate.getDate()).padStart(2, '0')); // Pour chaque sport, on refait ça ICIIII
+    //sport_dict = {}
+    //data.forEach(element => {
+    //    if (!sport_dict.hasOwnProprerty(element.sport)) {
+    //        print(coucou)
+    //    } 
+    //})
 
-    sport_dict = {};
-    data.forEach(function (element) {
-      if (!sport_dict.hasOwnProprty(element.sport)) {
-        print(coucou);
-      }
-    });
     var saved_trainings = 0;
     data.forEach(function (element) {
-      if (minDateFormatted <= element.date && element.date <= maxDateFormatted && element.sport == sport_name) {
+      if (minDateFormatted <= element.date && element.date <= maxDateFormatted) {
+        //&& element.sport == sport_name
         saved_trainings += Number(element.athletes);
       }
     });
@@ -431,6 +450,22 @@ function DrawSmallMultiple(data, startDate, endDate) {
   }
 
   computeSavedTraining(data);
+  d3.select('button').on('click', function () {
+    return ShowButton(data);
+  });
+}
+
+function ShowButton(data) {
+  showAll = !showAll;
+
+  if (showAll) {
+    d3.select('button').text('Cacher');
+  } else {
+    d3.select('button').text('Tout Montrer');
+  }
+
+  d3.select('#smallMultiple-svg').selectAll('svg').remove();
+  DrawSmallMultiple(data, null, null);
 }
 /**
  *
@@ -448,14 +483,16 @@ function UpdateTimeWindow() {
   var b = new Date(selectedDate);
   var leftDate = a < b ? a : b;
   var rightDate = a > b ? a : b;
-  selectedDate = [leftDate, rightDate]; // var timeDelta = rightDate - leftDate
-  // var daysDelta = Math.ceil(timeDelta / (1000 * 60 * 60 * 24))
-  // if (daysDelta < MIN_DATE_SELECTION_DAYS) {
-  //     var daysToAdd = (MIN_DATE_SELECTION_DAYS - daysDelta) / 2
-  //     leftDate.addDays(daysToAdd)
-  //     rightDate.addDays(daysToAdd)
-  // }
 
+  if (leftDate < FIRST_INS_DATE) {
+    leftDate = FIRST_INS_DATE;
+  }
+
+  if (rightDate > LAST_INS_DATE) {
+    rightDate = LAST_INS_DATE;
+  }
+
+  dateRange = [leftDate, rightDate];
   d3.select('.time-window-left').attr('width', xScaleCov(leftDate));
   d3.select('.time-window-right').attr('x', xScaleCov(rightDate)).attr('width', COVID_WIDTH - xScaleCov(rightDate));
   UpdateTimeSM();
@@ -463,13 +500,13 @@ function UpdateTimeWindow() {
 
 function UpdateTimeSM() {
   // update xScale
-  xScaleSM.domain(selectedDate); // update xaxis
+  xScaleSM.domain(dateRange); // update xaxis
 
   d3.selectAll('.x-axis-small-multiple').transition().duration(5).call(d3.axisBottom(xScaleSM).ticks(2)); // update line
 
   function filterDateString(d) {
     var date = new Date(d.date);
-    return selectedDate[0] <= date & date <= selectedDate[1];
+    return dateRange[0] <= date & date <= dateRange[1];
   }
 
   d3.selectAll('.small-multiple-line').transition().duration(5).attr('d', function (d) {
@@ -488,7 +525,7 @@ function UpdateTimeSM() {
 
 
 function UpdateHoverSMViz() {
-  d3.selectAll('.hover_circle').attr('cx', function (data) {
+  d3.selectAll('.hover-circle').attr('cx', function (data) {
     return xScaleSM(new Date(data.values.find(function (element) {
       return element.date === selectedDate;
     }).date));
@@ -497,9 +534,22 @@ function UpdateHoverSMViz() {
       return element.date === selectedDate;
     }).moving_avg);
   });
+  d3.selectAll('.hover-x-axis-line').attr('x', function (data) {
+    return xScaleSM(new Date(data.values.find(function (element) {
+      return element.date === selectedDate;
+    }).date));
+  }).attr('y', function (data) {
+    return yScaleSM(data.values.find(function (element) {
+      return element.date === selectedDate;
+    }).moving_avg);
+  }).attr('height', function (data) {
+    return SM_HEIGHT - yScaleSM(data.values.find(function (element) {
+      return element.date === selectedDate;
+    }).moving_avg);
+  });
   var textOffsetX = 10;
   var textOffsetY = 20;
-  d3.selectAll('.hover_text').attr('x', function (data) {
+  d3.selectAll('.hover-text').attr('x', function (data) {
     var hoverData = data.values.find(function (element) {
       return element.date === selectedDate;
     });
@@ -521,6 +571,23 @@ function UpdateHoverSMViz() {
     });
     return parseInt(hoverData.moving_avg);
   });
+  d3.selectAll('.hover-text-bg').attr('x', function (data) {
+    var hoverData = data.values.find(function (element) {
+      return element.date === selectedDate;
+    });
+    var xPos = xScaleSM(new Date(hoverData.date));
+
+    if (xPos > SM_WIDTH / 2) {
+      return xPos - 4 * textOffsetX;
+    } else {
+      return xPos + textOffsetX;
+    }
+  }).attr('y', function (data) {
+    var hoverData = data.values.find(function (element) {
+      return element.date === selectedDate;
+    });
+    return yScaleSM(hoverData.moving_avg) - textOffsetY - 25;
+  });
 }
 /**
  *
@@ -531,7 +598,7 @@ function UpdateHoverCovid() {
   var selector = document.getElementById('covid_data_select');
   var selection = selector.options[selector.selectedIndex].value;
   var attribute = SELECTOR_TO_ATTR[selection];
-  d3.select('.hover_circle_covid').attr('cx', function (data) {
+  d3.select('.hover-circle_covid').attr('cx', function (data) {
     return xScaleCov(new Date(data.find(function (element) {
       return element.date === selectedDate;
     }).date));
@@ -542,7 +609,7 @@ function UpdateHoverCovid() {
   });
   var textOffsetX = 10;
   var textOffsetY = 20;
-  d3.selectAll('.hover_text_covid').attr('x', function (data) {
+  d3.selectAll('.hover-text_covid').attr('x', function (data) {
     var hoverData = data.find(function (element) {
       return element.date === selectedDate;
     });
@@ -571,10 +638,12 @@ function UpdateHoverCovid() {
 
 
 function ShowHoverTextAndCircles(opacity) {
-  d3.selectAll('.hover_text').style('opacity', opacity);
-  d3.selectAll('.hover_circle').style('opacity', opacity);
-  d3.selectAll('.hover_text_covid').style('opacity', opacity);
-  d3.selectAll('.hover_circle_covid').style('opacity', opacity);
+  d3.selectAll('.hover-text').style('opacity', opacity);
+  d3.selectAll('.hover-text-bg').style('opacity', opacity);
+  d3.selectAll('.hover-x-axis-line').style('opacity', opacity);
+  d3.selectAll('.hover-circle').style('opacity', opacity);
+  d3.selectAll('.hover-text_covid').style('opacity', opacity);
+  d3.selectAll('.hover-circle_covid').style('opacity', opacity);
 
   if (opacity === 0) {
     d3.select('#hover-date').text('hovered date:');
@@ -651,7 +720,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "2218" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "22147" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

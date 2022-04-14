@@ -456,16 +456,16 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         
 
         // Pour chaque sport, on refait ça ICIIII
-        sport_dict = {}
-        data.forEach(element => {
-            if (!sport_dict.hasOwnProprty(element.sport)) {
-                print(coucou)
-            } 
-        })
+        //sport_dict = {}
+        //data.forEach(element => {
+        //    if (!sport_dict.hasOwnProprerty(element.sport)) {
+        //        print(coucou)
+        //    } 
+        //})
         let saved_trainings = 0
 
         data.forEach(element => {
-            if (minDateFormatted <= element.date && element.date <= maxDateFormatted && element.sport == sport_name) {
+            if (minDateFormatted <= element.date && element.date <= maxDateFormatted ) { //&& element.sport == sport_name
                 saved_trainings += Number(element.athletes)
             }
         })
@@ -477,7 +477,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     }
 
-    computeSavedTraining(data,)
+    computeSavedTraining(data)
 
     d3.select('button').on('click', () => ShowButton(data))
 }
@@ -491,7 +491,6 @@ function ShowButton(data) {
     }
     d3.select('#smallMultiple-svg').selectAll('svg').remove()
     DrawSmallMultiple(data, null, null)
-
 }
 
 /**

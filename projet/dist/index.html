@@ -17,7 +17,7 @@
     <div id="main-container" class="container">
       <div class="row">
         <div class="col-md-auto">
-          <div class="row border border-4">
+          <div class="row">
             <div class="count-svg">
               <h3 id="training-count"></h3>
               <h4 id="total-training-count"></h4>
@@ -26,7 +26,7 @@
               </p>
             </div>
           </div>
-          <div class="row border border-4"> 
+          <div class="row">
             <div class="global-sm">
               <p>Graph global des sports dans cette boite</p>
               <h3 id="hover-date"></h3>
@@ -34,17 +34,17 @@
                 <option value="cases">cases</option>
                 <option value="deaths">deaths</option>
                 <option value="hospitalisations" ”="">hospitalisations</option>
-                </select>
+              </select>
               <!-- Put the global sport div right here -->
             </div>
-          </div> 
+          </div>
         </div>
-        <div class="col border border-4" align="center">
+        <div class="col">
           <div id="covid-svg"></div>
         </div>
       </div>
-      <div id="smallMultiple-svg" class="border border-4" align="center">
-      </div>
+      <div id="smallMultiple-svg" class="container"></div>
+      <button id="show-more" class="button">Tout Montrer</button>
     </div>
   </main>
   <script src="https://d3js.org/d3.v5.js"></script>
