@@ -445,7 +445,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('x', SM_WIDTH - MARGIN.right - MARGIN.left - 16)
         .attr('font-size', 10)
         .classed('sm-title', true)
-        .text("entraî. sauvés")
+        .text("entraînements sauvés")
 
     // function computeSavedTraining(data){
     //     let minDate = d3.min(xScaleSM.ticks())
