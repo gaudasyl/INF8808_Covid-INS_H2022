@@ -430,7 +430,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     // Add counter
     svg.append('text')
-        .attr('id', function(d) {return `${d.key}-counter` })
+        .attr('id', function (d) { return `${d.key}-counter` })
         .attr('text-anchor', 'start')
         .attr('y', -10)
         .attr('x', SM_WIDTH - 38)
@@ -447,37 +447,37 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .classed('sm-title', true)
         .text("entraî. sauvés")
 
-    function computeSavedTraining(data){
-        let minDate = d3.min(xScaleSM.ticks())
-        let minDateFormatted = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`
-        
-        let maxDate = d3.max(xScaleSM.ticks())
-        let maxDateFormatted = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`
-        
+    // function computeSavedTraining(data){
+    //     let minDate = d3.min(xScaleSM.ticks())
+    //     let minDateFormatted = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`
 
-        // Pour chaque sport, on refait ça ICIIII
-        //sport_dict = {}
-        //data.forEach(element => {
-        //    if (!sport_dict.hasOwnProprerty(element.sport)) {
-        //        print(coucou)
-        //    } 
-        //})
-        let saved_trainings = 0
-
-        data.forEach(element => {
-            if (minDateFormatted <= element.date && element.date <= maxDateFormatted ) { //&& element.sport == sport_name
-                saved_trainings += Number(element.athletes)
-            }
-        })
-        
-        console.log(saved_trainings)
-        
-        d3.select("#Judo-counter").text(saved_trainings)
+    //     let maxDate = d3.max(xScaleSM.ticks())
+    //     let maxDateFormatted = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`
 
 
-    }
+    //     // Pour chaque sport, on refait ça ICIIII
+    //     //sport_dict = {}
+    //     //data.forEach(element => {
+    //     //    if (!sport_dict.hasOwnProprerty(element.sport)) {
+    //     //        print(coucou)
+    //     //    } 
+    //     //})
+    //     let saved_trainings = 0
 
-    computeSavedTraining(data)
+    //     data.forEach(element => {
+    //         if (minDateFormatted <= element.date && element.date <= maxDateFormatted ) { //&& element.sport == sport_name
+    //             saved_trainings += Number(element.athletes)
+    //         }
+    //     })
+
+    //     console.log(saved_trainings)
+
+    //     d3.select("#Judo-counter").text(saved_trainings)
+
+
+    // }
+
+    // computeSavedTraining(data)
 
     d3.select('button').on('click', () => ShowButton(data))
 }
