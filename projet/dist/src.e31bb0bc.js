@@ -220,12 +220,12 @@ function DrawCovidViz(data, dataFermetures, startDate, endDate) {
 
   svg.append('g').classed('fermetures_gym', true).selectAll('rect').data(dataFermetures).enter().append('rect').attr('x', function (element) {
     return xScaleCov(element.start);
-  }).attr('y', 0).attr('width', function (element) {
+  }).attr('y', COVID_HEIGHT + 1).attr('width', function (element) {
     return xScaleCov(element.end) - xScaleCov(element.start);
-  }).attr('height', 30).attr('fill', 'grey').attr('opacity', 0.5).on('mouseover', function () {
-    OnGymClosedHover(this, 1);
+  }).attr('height', 8).attr('fill', 'yellow').attr('opacity', 0.35).on('mouseover', function () {
+    OnGymClosedHover(this, 0.85);
   }).on('mouseout', function () {
-    OnGymClosedHover(this, 0.5);
+    OnGymClosedHover(this, 0.35);
   }); // Event listeners
 
   svg.append('rect').datum(data).style('fill', 'none').style('pointer-events', 'all').attr('y', 30).attr('width', COVID_WIDTH).attr('height', COVID_HEIGHT - 30).attr('id', 'covid').on('mouseover', mouseover).on('mousemove', function (d) {
@@ -394,12 +394,43 @@ function DrawSmallMultiple(data, startDate, endDate) {
 
   function mouseout() {
     ShowHoverTextAndCircles(0);
-  } // Add titles
+  } // Add title
 
 
-  svg.append('text').attr('text-anchor', 'start').attr('y', -5).attr('x', 0).attr('font-size', 18).attr('font-weight', 'bold').classed('sm-title', true).text(function (d) {
+  svg.append('text').attr('text-anchor', 'start').attr('y', -5).attr('x', 0).attr('font-size', 14).attr('font-weight', 'bold').classed('sm-title', true).text(function (d) {
     return d.key;
-  });
+  }); // Add counter
+
+  svg.append('text').attr('id', function (d) {
+    return "".concat(d.key, "-counter");
+  }).attr('text-anchor', 'start').attr('y', -10).attr('x', SM_WIDTH - 38).attr('font-size', 10).classed('sm-title', true).text("100"); // A définir la valeur que ça doit prendre
+  // Add subtitle
+
+  svg.append('text').attr('text-anchor', 'start').attr('y', -1).attr('x', SM_WIDTH - MARGIN.right - MARGIN.left - 16).attr('font-size', 10).classed('sm-title', true).text("entraî. sauvés");
+
+  function computeSavedTraining(data) {
+    var minDate = d3.min(xScaleSM.ticks());
+    var minDateFormatted = "".concat(minDate.getFullYear(), "-").concat(String(minDate.getMonth() + 1).padStart(2, '0'), "-").concat(String(minDate.getDate()).padStart(2, '0'));
+    var maxDate = d3.max(xScaleSM.ticks());
+    var maxDateFormatted = "".concat(maxDate.getFullYear(), "-").concat(String(maxDate.getMonth() + 1).padStart(2, '0'), "-").concat(String(maxDate.getDate()).padStart(2, '0')); // Pour chaque sport, on refait ça ICIIII
+
+    sport_dict = {};
+    data.forEach(function (element) {
+      if (!sport_dict.hasOwnProprty(element.sport)) {
+        print(coucou);
+      }
+    });
+    var saved_trainings = 0;
+    data.forEach(function (element) {
+      if (minDateFormatted <= element.date && element.date <= maxDateFormatted && element.sport == sport_name) {
+        saved_trainings += Number(element.athletes);
+      }
+    });
+    console.log(saved_trainings);
+    d3.select("#Judo-counter").text(saved_trainings);
+  }
+
+  computeSavedTraining(data);
 }
 /**
  *
@@ -620,7 +651,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37477" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "2218" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

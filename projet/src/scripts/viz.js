@@ -134,13 +134,13 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .enter()
         .append('rect')
         .attr('x', element => xScaleCov(element.start))
-        .attr('y', 0)
+        .attr('y', COVID_HEIGHT + 1)
         .attr('width', element => xScaleCov(element.end) - xScaleCov(element.start))
-        .attr('height', 30)
-        .attr('fill', 'grey')
-        .attr('opacity', 0.5)
-        .on('mouseover', function () { OnGymClosedHover(this, 1) })
-        .on('mouseout', function () { OnGymClosedHover(this, 0.5) })
+        .attr('height', 8)
+        .attr('fill', 'yellow')
+        .attr('opacity', 0.35)
+        .on('mouseover', function () { OnGymClosedHover(this, 0.85) })
+        .on('mouseout', function () { OnGymClosedHover(this, 0.35) })
 
     // Event listeners
     svg.append('rect')
@@ -379,15 +379,66 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         ShowHoverTextAndCircles(0)
     }
 
-    // Add titles
+    // Add title
     svg.append('text')
         .attr('text-anchor', 'start')
         .attr('y', -5)
         .attr('x', 0)
-        .attr('font-size', 18)
+        .attr('font-size', 14)
         .attr('font-weight', 'bold')
         .classed('sm-title', true)
         .text(function (d) { return (d.key) })
+
+    // Add counter
+    svg.append('text')
+        .attr('id', function(d) {return `${d.key}-counter` })
+        .attr('text-anchor', 'start')
+        .attr('y', -10)
+        .attr('x', SM_WIDTH - 38)
+        .attr('font-size', 10)
+        .classed('sm-title', true)
+        .text("100") // A définir la valeur que ça doit prendre
+
+    // Add subtitle
+    svg.append('text')
+        .attr('text-anchor', 'start')
+        .attr('y', -1)
+        .attr('x', SM_WIDTH - MARGIN.right - MARGIN.left - 16)
+        .attr('font-size', 10)
+        .classed('sm-title', true)
+        .text("entraî. sauvés")
+
+    function computeSavedTraining(data){
+        let minDate = d3.min(xScaleSM.ticks())
+        let minDateFormatted = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`
+        
+        let maxDate = d3.max(xScaleSM.ticks())
+        let maxDateFormatted = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`
+        
+
+        // Pour chaque sport, on refait ça ICIIII
+        sport_dict = {}
+        data.forEach(element => {
+            if (!sport_dict.hasOwnProprty(element.sport)) {
+                print(coucou)
+            } 
+        })
+        let saved_trainings = 0
+
+        data.forEach(element => {
+            if (minDateFormatted <= element.date && element.date <= maxDateFormatted && element.sport == sport_name) {
+                saved_trainings += Number(element.athletes)
+            }
+        })
+        
+        console.log(saved_trainings)
+        
+        d3.select("#Judo-counter").text(saved_trainings)
+
+
+    }
+
+    computeSavedTraining(data,)
 }
 
 /**
