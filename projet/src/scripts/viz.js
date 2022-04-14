@@ -32,6 +32,9 @@ var yScaleCov
 
 var covid_data_selected = 'cases'
 
+var FIRST_INS_DATE = new Date('2020-06-22')
+var LAST_INS_DATE = new Date('2022-02-12')
+
 /**
  * @param data
  * @param startDate
@@ -175,7 +178,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .style('opacity', 0.4)
         .attr('class', 'time-window-left')
         .attr('height', COVID_HEIGHT)
-        .attr('width', 0)
+        .attr('width', xScaleCov(FIRST_INS_DATE))
     svg.append('rect')
         .style('pointer-events', 'none')
         .style('fill', GRIDLINE_COLOR)
@@ -183,7 +186,8 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .attr('x', COVID_WIDTH)
         .attr('class', 'time-window-right')
         .attr('height', COVID_HEIGHT)
-        .attr('width', 0)
+        .attr('x', xScaleCov(LAST_INS_DATE))
+        .attr('width', COVID_WIDTH - xScaleCov(LAST_INS_DATE))
 
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
@@ -430,15 +434,14 @@ function UpdateTimeWindow() {
     var leftDate = a < b ? a : b
     var rightDate = a > b ? a : b
 
-    selectedDate = [leftDate, rightDate]
+    if (leftDate < FIRST_INS_DATE) {
+        leftDate = FIRST_INS_DATE
+    }
+    if (rightDate > LAST_INS_DATE) {
+        rightDate = LAST_INS_DATE
+    }
 
-    // var timeDelta = rightDate - leftDate
-    // var daysDelta = Math.ceil(timeDelta / (1000 * 60 * 60 * 24))
-    // if (daysDelta < MIN_DATE_SELECTION_DAYS) {
-    //     var daysToAdd = (MIN_DATE_SELECTION_DAYS - daysDelta) / 2
-    //     leftDate.addDays(daysToAdd)
-    //     rightDate.addDays(daysToAdd)
-    // }
+    selectedDate = [leftDate, rightDate]
 
     d3.select('.time-window-left')
         .attr('width', xScaleCov(leftDate))
