@@ -35,6 +35,8 @@ var covid_data_selected = 'cases'
 var FIRST_INS_DATE = new Date('2020-06-22')
 var LAST_INS_DATE = new Date('2022-02-12')
 
+var showAll = false
+
 /**
  * @param data
  * @param startDate
@@ -283,6 +285,11 @@ export function DrawSmallMultiple(data, startDate, endDate) {
             d3.sum(a.values.map(o => o.moving_avg)) > VISIT_THRESHOLD
     )
 
+    // Only show some parts of the graph
+    if (!showAll) {
+        sumstat = sumstat.slice(0, 4)
+    }
+
     // What is the list of groups?
     const allKeys = sumstat.map(function (d) { return d.key })
 
@@ -417,6 +424,14 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('font-weight', 'bold')
         .classed('sm-title', true)
         .text(function (d) { return (d.key) })
+
+    d3.select('button').on('click', () => ShowButton(data))
+}
+
+function ShowButton(data) {
+    showAll = !showAll
+    d3.select('#smallMultiple-svg').selectAll('svg').remove()
+    DrawSmallMultiple(data, null, null)
 }
 
 /**
