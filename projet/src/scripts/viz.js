@@ -18,10 +18,13 @@ const HOVER_CIRCLE_RADIUS = 2
 const GRIDLINE_STROKE_WIDTH = 0.5
 const GRIDLINE_COLOR = '#C4C4C4'
 
-var selectedDate
+var FIRST_INS_DATE = new Date('2020-06-22')
+var LAST_INS_DATE = new Date('2022-02-12')
+var dateRange = [FIRST_INS_DATE, LAST_INS_DATE]
 
 const MIN_DATE_SELECTION_DAYS = 30
 
+var selectedDate
 var mousedownDate
 var isMouseDown = false
 
@@ -31,6 +34,9 @@ var xScaleCov
 var yScaleCov
 
 var covid_data_selected = 'cases'
+
+
+var showAll = false
 
 /**
  * @param data
@@ -83,6 +89,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .domain(d3.extent(data, function (d) { return new Date(d.date) }))
         .range([0, COVID_WIDTH])
     svg.append('g')
+        .attr('class', 'x-axis')
         .attr('transform', 'translate(0,' + COVID_HEIGHT + ')')
         .call(d3.axisBottom(xScaleCov))
 
@@ -91,7 +98,17 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .domain([0, d3.max(data, (d) => Math.max(d.cases_moving_avg))])
         .range([COVID_HEIGHT, 0])
     var yAxis = svg.append('g')
+        .attr('class', 'y-axis')
         .call(d3.axisLeft(yScaleCov))
+
+    // Add Y grid
+    const yAxisGrid = d3.axisLeft(yScaleCov).tickSize(-COVID_WIDTH).tickFormat('')
+    svg.append('g')
+        .attr('class', 'y-axis-grid')
+        .attr('color', GRIDLINE_COLOR)
+        .attr('stroke-width', GRIDLINE_STROKE_WIDTH)
+        .call(yAxisGrid)
+        .call(g => g.select(".domain").remove());
 
     // Add the cases line
     var line = svg.append('path')
@@ -111,7 +128,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     var circle = svg.append('g')
         .append('circle')
         .datum(data)
-        .classed('hover_circle_covid', true)
+        .classed('hover-circle_covid', true)
         .style('fill', LINE_COLOR)
         .attr('r', 3)
         .style('opacity', 0)
@@ -120,7 +137,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     var text = svg.append('g')
         .append('text')
         .datum(data)
-        .classed('hover_text_covid', true)
+        .classed('hover-text_covid', true)
         .style('opacity', 0)
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')
@@ -164,7 +181,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .style('opacity', 0.4)
         .attr('class', 'time-window-left')
         .attr('height', COVID_HEIGHT)
-        .attr('width', 0)
+        .attr('width', xScaleCov(dateRange[0]))
     svg.append('rect')
         .style('pointer-events', 'none')
         .style('fill', GRIDLINE_COLOR)
@@ -172,7 +189,8 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .attr('x', COVID_WIDTH)
         .attr('class', 'time-window-right')
         .attr('height', COVID_HEIGHT)
-        .attr('width', 0)
+        .attr('x', xScaleCov(LAST_INS_DATE))
+        .attr('width', COVID_WIDTH - xScaleCov(dateRange[1]))
 
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
@@ -268,6 +286,11 @@ export function DrawSmallMultiple(data, startDate, endDate) {
             d3.sum(a.values.map(o => o.moving_avg)) > VISIT_THRESHOLD
     )
 
+    // Only show some parts of the graph
+    if (!showAll) {
+        sumstat = sumstat.slice(0, 4)
+    }
+
     // What is the list of groups?
     const allKeys = sumstat.map(function (d) { return d.key })
 
@@ -285,7 +308,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     // Add X axis --> it is a date format
     xScaleSM = d3.scaleTime()
-        .domain(d3.extent(data, function (d) { return new Date(d.date) }))
+        .domain(dateRange)
         .range([0, SM_WIDTH])
     svg.append('g')
         .attr('class', 'x-axis-small-multiple')
@@ -309,10 +332,11 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .call(yAxisGrid)
         .call(g => g.select(".domain").remove());
 
-    // This allows to find the closest X index of the mouse:
-    var bisect = d3.bisector(function (d) { return d.date }).left
-
     // Draw the line
+    function filterDateString(d) {
+        var date = new Date(d.date);
+        return dateRange[0] <= date & date <= dateRange[1]
+    }
     svg.append('path')
         .attr('class', 'small-multiple-line')
         .style('pointer-events', 'none')
@@ -322,7 +346,8 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('d', function (d) {
             return d3.line()
                 .x(function (d) { return xScaleSM(new Date(d.date)) })
-                .y(function (d) { return yScaleSM(+d.moving_avg) })(d.values)
+                .y(function (d) { return yScaleSM(+d.moving_avg) })
+                (d.values.filter((d) => filterDateString(d)))
         })
 
     // Create even listener
@@ -339,19 +364,33 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     // Create the circle that travels along the curve of chart
     svg.append('g')
         .append('circle')
-        .classed('hover_circle', true)
+        .classed('hover-circle', true)
         .style('fill', LINE_COLOR)
         .attr('r', HOVER_CIRCLE_RADIUS)
         .style('opacity', 0)
 
     // Create the text that travels along the curve of chart
-    svg.append('g')
-        .append('text')
-        .classed('hover_text', true)
+    var text = svg.append('g')
+        .style('pointer-events', 'none')
+    text.append('rect')
+        .classed('hover-text-bg', true)
+        .style('opacity', 0)
+        .attr('width', 50)
+        .attr('height', 40)
+        .attr('fill', '#EFEFEF')
+    text.append('rect')
+        .classed('hover-x-axis-line', true)
+        .style('opacity', 0)
+        .attr('width', 1)
+        .attr('fill', '#b5b5b5')
+        .attr('y', SM_HEIGHT)
+    text.append('text')
+        .classed('hover-text', true)
         .style('opacity', 0)
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')
         .style('font-weight', 'bold')
+
 
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
@@ -439,6 +478,20 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     }
 
     computeSavedTraining(data,)
+
+    d3.select('button').on('click', () => ShowButton(data))
+}
+
+function ShowButton(data) {
+    showAll = !showAll
+    if (showAll) {
+        d3.select('button').text('Cacher')
+    } else {
+        d3.select('button').text('Tout Montrer')
+    }
+    d3.select('#smallMultiple-svg').selectAll('svg').remove()
+    DrawSmallMultiple(data, null, null)
+
 }
 
 /**
@@ -456,15 +509,14 @@ function UpdateTimeWindow() {
     var leftDate = a < b ? a : b
     var rightDate = a > b ? a : b
 
-    selectedDate = [leftDate, rightDate]
+    if (leftDate < FIRST_INS_DATE) {
+        leftDate = FIRST_INS_DATE
+    }
+    if (rightDate > LAST_INS_DATE) {
+        rightDate = LAST_INS_DATE
+    }
 
-    // var timeDelta = rightDate - leftDate
-    // var daysDelta = Math.ceil(timeDelta / (1000 * 60 * 60 * 24))
-    // if (daysDelta < MIN_DATE_SELECTION_DAYS) {
-    //     var daysToAdd = (MIN_DATE_SELECTION_DAYS - daysDelta) / 2
-    //     leftDate.addDays(daysToAdd)
-    //     rightDate.addDays(daysToAdd)
-    // }
+    dateRange = [leftDate, rightDate]
 
     d3.select('.time-window-left')
         .attr('width', xScaleCov(leftDate))
@@ -477,7 +529,7 @@ function UpdateTimeWindow() {
 
 function UpdateTimeSM() {
     // update xScale
-    xScaleSM.domain(selectedDate)
+    xScaleSM.domain(dateRange)
 
     // update xaxis
     d3.selectAll('.x-axis-small-multiple')
@@ -488,7 +540,7 @@ function UpdateTimeSM() {
     // update line
     function filterDateString(d) {
         var date = new Date(d.date);
-        return selectedDate[0] <= date & date <= selectedDate[1]
+        return dateRange[0] <= date & date <= dateRange[1]
     }
     d3.selectAll('.small-multiple-line')
         .transition().duration(5).attr('d', function (d) {
@@ -505,14 +557,19 @@ function UpdateTimeSM() {
  *
  */
 function UpdateHoverSMViz() {
-    d3.selectAll('.hover_circle')
+    d3.selectAll('.hover-circle')
         .attr('cx', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
         .attr('cy', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+
+    d3.selectAll('.hover-x-axis-line')
+        .attr('x', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
+        .attr('y', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+        .attr('height', data => SM_HEIGHT - yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
 
     const textOffsetX = 10
     const textOffsetY = 20
 
-    d3.selectAll('.hover_text')
+    d3.selectAll('.hover-text')
         .attr('x', function (data) {
             const hoverData = data.values.find(element => element.date === selectedDate)
             const xPos = xScaleSM(new Date(hoverData.date))
@@ -530,6 +587,22 @@ function UpdateHoverSMViz() {
             const hoverData = data.values.find(element => element.date === selectedDate)
             return parseInt(hoverData.moving_avg)
         })
+
+    d3.selectAll('.hover-text-bg')
+        .attr('x', function (data) {
+            const hoverData = data.values.find(element => element.date === selectedDate)
+            const xPos = xScaleSM(new Date(hoverData.date))
+            if (xPos > SM_WIDTH / 2) {
+                return xPos - 4 * textOffsetX
+            } else {
+                return xPos + textOffsetX
+            }
+        })
+        .attr('y', function (data) {
+            const hoverData = data.values.find(element => element.date === selectedDate)
+            return yScaleSM(hoverData.moving_avg) - textOffsetY - 25
+        })
+
 }
 
 /**
@@ -542,13 +615,13 @@ function UpdateHoverCovid() {
 
     var attribute = SELECTOR_TO_ATTR[selection]
 
-
-    d3.select('.hover_circle_covid')
+    d3.select('.hover-circle_covid')
         .attr('cx', data => xScaleCov(new Date(data.find(element => element.date === selectedDate).date)))
         .attr('cy', data => yScaleCov(data.find(element => element.date === selectedDate)[attribute]))
     const textOffsetX = 10
     const textOffsetY = 20
-    d3.selectAll('.hover_text_covid')
+
+    d3.selectAll('.hover-text_covid')
         .attr('x', function (data) {
             const hoverData = data.find(element => element.date === selectedDate)
             const xPos = xScaleCov(new Date(hoverData.date))
@@ -566,16 +639,20 @@ function UpdateHoverCovid() {
             const hoverData = data.find(element => element.date === selectedDate)
             return Math.round(hoverData[attribute])
         })
+
+
 }
 
 /**
  * @param opacity
  */
 function ShowHoverTextAndCircles(opacity) {
-    d3.selectAll('.hover_text').style('opacity', opacity)
-    d3.selectAll('.hover_circle').style('opacity', opacity)
-    d3.selectAll('.hover_text_covid').style('opacity', opacity)
-    d3.selectAll('.hover_circle_covid').style('opacity', opacity)
+    d3.selectAll('.hover-text').style('opacity', opacity)
+    d3.selectAll('.hover-text-bg').style('opacity', opacity)
+    d3.selectAll('.hover-x-axis-line').style('opacity', opacity)
+    d3.selectAll('.hover-circle').style('opacity', opacity)
+    d3.selectAll('.hover-text_covid').style('opacity', opacity)
+    d3.selectAll('.hover-circle_covid').style('opacity', opacity)
 
     if (opacity === 0) {
         d3.select('#hover-date').text('hovered date:')

@@ -10,10 +10,14 @@ main {
     font-size: small;
 }
 
-#smallMultiple-svg .x-axis .tick line,
-#smallMultiple-svg .y-axis .domain,
-#smallMultiple-svg .y-axis .tick line {
+.x-axis .tick line,
+.y-axis .domain,
+.y-axis .tick line {
     display: none;
+}
+
+.hover-text-bg {
+    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 }
 
 .hover_circle {
@@ -22,4 +26,48 @@ main {
 
 .smallMultiple .y-axis-grid .domain path {
     display: none;
+}
+
+#main-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.container {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: auto;
+    padding-right: auto;
+    padding-top: 20px;
+    text-align: center;
+    border-top-width: 4px;
+    border-color: rgb(190, 188, 188);
+    border-top-style: solid;
+}
+
+.container>svg {
+    width: calc(100% / 4);
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+}
+
+.button {
+    padding-top: 10px;
+    padding-bottom: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 40px;
+    border: none;
+    border-radius: 3px;
+    background-color: #D9CE3F;
+    color: white;
+    font-size: larger;
+    font-weight: bold;
+}
+
+.button:hover {
+    background-color: #8e8729;
+    color: white;
 }
