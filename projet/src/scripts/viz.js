@@ -18,10 +18,13 @@ const HOVER_CIRCLE_RADIUS = 2
 const GRIDLINE_STROKE_WIDTH = 0.5
 const GRIDLINE_COLOR = '#C4C4C4'
 
-var selectedDate
+var FIRST_INS_DATE = new Date('2020-06-22')
+var LAST_INS_DATE = new Date('2022-02-12')
+var dateRange = [FIRST_INS_DATE, LAST_INS_DATE]
 
 const MIN_DATE_SELECTION_DAYS = 30
 
+var selectedDate
 var mousedownDate
 var isMouseDown = false
 
@@ -32,8 +35,6 @@ var yScaleCov
 
 var covid_data_selected = 'cases'
 
-var FIRST_INS_DATE = new Date('2020-06-22')
-var LAST_INS_DATE = new Date('2022-02-12')
 
 var showAll = false
 
@@ -180,7 +181,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .style('opacity', 0.4)
         .attr('class', 'time-window-left')
         .attr('height', COVID_HEIGHT)
-        .attr('width', xScaleCov(FIRST_INS_DATE))
+        .attr('width', xScaleCov(dateRange[0]))
     svg.append('rect')
         .style('pointer-events', 'none')
         .style('fill', GRIDLINE_COLOR)
@@ -189,7 +190,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .attr('class', 'time-window-right')
         .attr('height', COVID_HEIGHT)
         .attr('x', xScaleCov(LAST_INS_DATE))
-        .attr('width', COVID_WIDTH - xScaleCov(LAST_INS_DATE))
+        .attr('width', COVID_WIDTH - xScaleCov(dateRange[1]))
 
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
@@ -307,7 +308,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     // Add X axis --> it is a date format
     xScaleSM = d3.scaleTime()
-        .domain(d3.extent(data, function (d) { return new Date(d.date) }))
+        .domain(dateRange)
         .range([0, SM_WIDTH])
     svg.append('g')
         .attr('class', 'x-axis-small-multiple')
@@ -331,10 +332,11 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .call(yAxisGrid)
         .call(g => g.select(".domain").remove());
 
-    // This allows to find the closest X index of the mouse:
-    var bisect = d3.bisector(function (d) { return d.date }).left
-
     // Draw the line
+    function filterDateString(d) {
+        var date = new Date(d.date);
+        return dateRange[0] <= date & date <= dateRange[1]
+    }
     svg.append('path')
         .attr('class', 'small-multiple-line')
         .style('pointer-events', 'none')
@@ -344,7 +346,8 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('d', function (d) {
             return d3.line()
                 .x(function (d) { return xScaleSM(new Date(d.date)) })
-                .y(function (d) { return yScaleSM(+d.moving_avg) })(d.values)
+                .y(function (d) { return yScaleSM(+d.moving_avg) })
+                (d.values.filter((d) => filterDateString(d)))
         })
 
     // Create even listener
@@ -430,6 +433,11 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
 function ShowButton(data) {
     showAll = !showAll
+    if (showAll) {
+        d3.select('button').text('Cacher')
+    } else {
+        d3.select('button').text('Tout Montrer')
+    }
     d3.select('#smallMultiple-svg').selectAll('svg').remove()
     DrawSmallMultiple(data, null, null)
 }
@@ -456,7 +464,7 @@ function UpdateTimeWindow() {
         rightDate = LAST_INS_DATE
     }
 
-    selectedDate = [leftDate, rightDate]
+    dateRange = [leftDate, rightDate]
 
     d3.select('.time-window-left')
         .attr('width', xScaleCov(leftDate))
@@ -469,7 +477,7 @@ function UpdateTimeWindow() {
 
 function UpdateTimeSM() {
     // update xScale
-    xScaleSM.domain(selectedDate)
+    xScaleSM.domain(dateRange)
 
     // update xaxis
     d3.selectAll('.x-axis-small-multiple')
@@ -480,7 +488,7 @@ function UpdateTimeSM() {
     // update line
     function filterDateString(d) {
         var date = new Date(d.date);
-        return selectedDate[0] <= date & date <= selectedDate[1]
+        return dateRange[0] <= date & date <= dateRange[1]
     }
     d3.selectAll('.small-multiple-line')
         .transition().duration(5).attr('d', function (d) {
