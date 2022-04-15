@@ -25,7 +25,6 @@ console.log('test');
 
 (function (d3) {
     d3.csv('./moving_avg_dataset.csv').then(function (data) {
-        console.log(data)
         viz.DrawCount(data, startDate, endDate)
         viz.DrawSmallMultiple(data, startDate, endDate)
     })

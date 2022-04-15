@@ -24,6 +24,8 @@ var dateRange = [FIRST_INS_DATE, LAST_INS_DATE]
 
 const MIN_DATE_SELECTION_DAYS = 30
 
+const MIN_VISIT_THRESHOLD = 250
+
 var selectedDate
 var mousedownDate
 var isMouseDown = false
@@ -280,10 +282,9 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     ).reverse()
 
     // Limit minimum number of visits
-    const VISIT_THRESHOLD = 100
     sumstat = sumstat.filter(
         (a) =>
-            d3.sum(a.values.map(o => o.moving_avg)) > VISIT_THRESHOLD
+            d3.sum(a.values.map(o => o.moving_avg)) > MIN_VISIT_THRESHOLD
     )
 
     // Only show some parts of the graph
@@ -398,6 +399,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
      */
     function mouseover() {
         ShowHoverTextAndCircles(1)
+        UpdateSavedTraining(data)
     }
 
     /**
@@ -430,13 +432,15 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     // Add counter
     svg.append('text')
-        .attr('id', function (d) { return `${d.key}-counter` })
+        .attr('id', function (d) { return `${d.key}-counter`.replace(/ /g,'') })
+        .data(data)
         .attr('text-anchor', 'start')
         .attr('y', -10)
-        .attr('x', SM_WIDTH - 38)
+        .attr('x', SM_WIDTH - 28)
         .attr('font-size', 10)
         .classed('sm-title', true)
-        .text("100") // A définir la valeur que ça doit prendre
+        .classed('counter', true)
+        .text("x") 
 
     // Add subtitle
     svg.append('text')
@@ -445,42 +449,38 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('x', SM_WIDTH - MARGIN.right - MARGIN.left - 16)
         .attr('font-size', 10)
         .classed('sm-title', true)
-        .text("entraînements sauvés")
+        .text("entraîn. sauvés")
 
-    // function computeSavedTraining(data){
-    //     let minDate = d3.min(xScaleSM.ticks())
-    //     let minDateFormatted = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`
-
-    //     let maxDate = d3.max(xScaleSM.ticks())
-    //     let maxDateFormatted = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`
-
-
-    //     // Pour chaque sport, on refait ça ICIIII
-    //     //sport_dict = {}
-    //     //data.forEach(element => {
-    //     //    if (!sport_dict.hasOwnProprerty(element.sport)) {
-    //     //        print(coucou)
-    //     //    } 
-    //     //})
-    //     let saved_trainings = 0
-
-    //     data.forEach(element => {
-    //         if (minDateFormatted <= element.date && element.date <= maxDateFormatted ) { //&& element.sport == sport_name
-    //             saved_trainings += Number(element.athletes)
-    //         }
-    //     })
-
-    //     console.log(saved_trainings)
-
-    //     d3.select("#Judo-counter").text(saved_trainings)
-
-
-    // }
-
-    // computeSavedTraining(data)
+    UpdateSavedTraining(data)
 
     d3.select('button').on('click', () => ShowButton(data))
 }
+
+function UpdateSavedTraining(data){
+    let minDate = d3.min(xScaleSM.ticks())
+    let minDateFormatted = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`
+
+    let maxDate = d3.max(xScaleSM.ticks())
+    let maxDateFormatted = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`
+
+    let sport_dict = {}
+    data.forEach(element => {
+       if (!sport_dict[element.sport]) {
+           sport_dict[element.sport] = 0
+       }
+    })
+    data.forEach(element => {
+        if (minDateFormatted <= element.date && element.date <= maxDateFormatted ) { 
+            sport_dict[element.sport] += Number(element.athletes)
+            }
+        })
+    
+    for (const [key,value] of Object.entries(sport_dict)){
+        d3.select(`#${key.replace(/ /g,'')}-counter`).text("")
+        d3.select(`#${key.replace(/ /g,'')}-counter`).text(value)
+    }
+}
+
 
 function ShowButton(data) {
     showAll = !showAll
@@ -541,14 +541,17 @@ function UpdateTimeSM() {
         var date = new Date(d.date);
         return dateRange[0] <= date & date <= dateRange[1]
     }
+
     d3.selectAll('.small-multiple-line')
         .transition().duration(5).attr('d', function (d) {
             return d3.line()
                 .x(function (d) { return xScaleSM(new Date(d.date)) })
                 .y(function (d) { return yScaleSM(+d.moving_avg) })
                 (d.values.filter((d) => filterDateString(d)))
-        })
+        })   
 }
+
+
 
 
 
