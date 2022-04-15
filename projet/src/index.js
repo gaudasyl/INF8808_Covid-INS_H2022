@@ -18,8 +18,8 @@ const fermeturesGym = [
 ]
 
 // start and end dates to define
-const startDate = new Date(2020, 0, 1)
-const endDate = new Date(2022, 0, 1)
+const startDate = "2020-06-15"
+const endDate = "2022-02-16"
 
 console.log('test');
 
