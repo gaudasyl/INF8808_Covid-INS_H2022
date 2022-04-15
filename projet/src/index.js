@@ -27,6 +27,7 @@ console.log('test');
     d3.csv('./moving_avg_dataset.csv').then(function (data) {
         viz.DrawCount(data, startDate, endDate)
         viz.DrawSmallMultiple(data, startDate, endDate)
+        viz.DrawGlobalSport(data, startDate, endDate)
     })
 
     d3.csv('./merged_covid_dataset.csv').then((data) => {

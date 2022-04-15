@@ -32,6 +32,8 @@ var isMouseDown = false
 
 var xScaleSM
 var yScaleSM
+var xScaleGlob
+var yScaleGlob
 var xScaleCov
 var yScaleCov
 
@@ -160,6 +162,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .attr('opacity', 0.35)
         .on('mouseover', function () { OnGymClosedHover(this, 0.85) })
         .on('mouseout', function () { OnGymClosedHover(this, 0.35) })
+        .on('mousedown', function () { console.log("gym closed")})
 
     // Event listeners
     svg.append('rect')
@@ -351,7 +354,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
                 (d.values.filter((d) => filterDateString(d)))
         })
 
-    // Create even listener
+    // Create event listener
     svg.append('rect')
         .style('fill', 'none')
         .style('pointer-events', 'all')
@@ -433,7 +436,6 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     // Add counter
     svg.append('text')
         .attr('id', function (d) { return `${d.key}-counter`.replace(/ /g,'') })
-        .data(data)
         .attr('text-anchor', 'start')
         .attr('y', -10)
         .attr('x', SM_WIDTH - 28)
@@ -538,7 +540,7 @@ function UpdateTimeSM() {
 
     // update line
     function filterDateString(d) {
-        var date = new Date(d.date);
+        var date = new Date(d.date)
         return dateRange[0] <= date & date <= dateRange[1]
     }
 
@@ -548,25 +550,22 @@ function UpdateTimeSM() {
                 .x(function (d) { return xScaleSM(new Date(d.date)) })
                 .y(function (d) { return yScaleSM(+d.moving_avg) })
                 (d.values.filter((d) => filterDateString(d)))
-        })   
+        })  
 }
-
-
-
 
 
 /**
  *
  */
 function UpdateHoverSMViz() {
-    d3.selectAll('.hover-circle')
-        .attr('cx', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
-        .attr('cy', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+        d3.selectAll('.hover-circle')
+            .attr('cx', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
+            .attr('cy', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
 
-    d3.selectAll('.hover-x-axis-line')
-        .attr('x', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
-        .attr('y', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
-        .attr('height', data => SM_HEIGHT - yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+        d3.selectAll('.hover-x-axis-line')
+            .attr('x', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
+            .attr('y', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+            .attr('height', data => SM_HEIGHT - yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
 
     const textOffsetX = 10
     const textOffsetY = 20
@@ -660,3 +659,9 @@ function ShowHoverTextAndCircles(opacity) {
         d3.select('#hover-date').text('hovered date:')
     }
 }
+
+// Draw global sport viz
+export function DrawGlobalSport(data, startDate, endDate){
+    let svg = d3.select("#global-sport-svg")
+
+    }
