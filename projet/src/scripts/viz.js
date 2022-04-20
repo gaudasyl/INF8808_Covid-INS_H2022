@@ -18,6 +18,10 @@ const HOVER_CIRCLE_RADIUS = 2
 const GRIDLINE_STROKE_WIDTH = 0.5
 const GRIDLINE_COLOR = '#C4C4C4'
 
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+]
+
 var FIRST_INS_DATE = new Date('2020-06-22')
 var LAST_INS_DATE = new Date('2022-02-12')
 var dateRange = [FIRST_INS_DATE, LAST_INS_DATE]
@@ -100,6 +104,7 @@ function OnGymClosedHover (rect, opacity) {
 
 /**
  * @param closingDates
+ * @param closingPeriod
  */
 function OnGymClosedClick (closingPeriod) {
     if (closingPeriod.end < FIRST_INS_DATE || closingPeriod.start > LAST_INS_DATE) {
@@ -183,6 +188,14 @@ export function DrawCovidViz (data) {
         .append('text')
         .datum(data)
         .classed('hover-text_covid', true)
+        .style('opacity', 0)
+        .attr('text-anchor', 'left')
+        .attr('alignment-baseline', 'middle')
+        .style('font-weight', 'bold')
+    var textDate = svg.append('g')
+        .append('text')
+        .datum(data)
+        .classed('hover-date_covid', true)
         .style('opacity', 0)
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')
@@ -559,8 +572,15 @@ function ShowButton (data) {
  */
 function UpdateHover () {
     d3.select('#hover-date').text('hovered date: ' + selectedDate)
-    UpdateHoverSMViz()
     UpdateHoverCovid()
+    const hoverDate = new Date(selectedDate)
+    // check if the selectedDate is in the selectedTime Window (if not we don't updateHover for SM viz)
+    if (hoverDate >= dateRange[0] && hoverDate <= dateRange[1]) {
+        ShowHoverTextAndCirclesSM(1)
+        UpdateHoverSMViz()
+    } else {
+        ShowHoverTextAndCirclesSM(0)
+    }
 }
 
 /**
@@ -633,21 +653,21 @@ function UpdateTimeSM () {
  *
  */
 function UpdateHoverSMViz () {
-        d3.selectAll('.hover-circle')
-            .attr('cx', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
-            .attr('cy', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+    d3.selectAll('.hover-circle')
+        .attr('cx', data => xScaleSM(new Date(FindDataAtHoverDate(data).date)))
+        .attr('cy', data => yScaleSM(FindDataAtHoverDate(data).moving_avg))
 
-        d3.selectAll('.hover-x-axis-line')
-            .attr('x', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
-            .attr('y', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
-            .attr('height', data => SM_HEIGHT - yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
+    d3.selectAll('.hover-x-axis-line')
+        .attr('x', data => xScaleSM(new Date(FindDataAtHoverDate(data).date)))
+        .attr('y', data => yScaleSM(FindDataAtHoverDate(data).moving_avg))
+        .attr('height', data => SM_HEIGHT - yScaleSM(FindDataAtHoverDate(data).moving_avg))
 
     const textOffsetX = 10
     const textOffsetY = 20
 
     d3.selectAll('.hover-text')
         .attr('x', function (data) {
-            const hoverData = data.values.find(element => element.date === selectedDate)
+            const hoverData = FindDataAtHoverDate(data)
             const xPos = xScaleSM(new Date(hoverData.date))
             if (xPos > SM_WIDTH / 2) {
                 return xPos - 4 * textOffsetX
@@ -656,17 +676,17 @@ function UpdateHoverSMViz () {
             }
         })
         .attr('y', function (data) {
-            const hoverData = data.values.find(element => element.date === selectedDate)
+            const hoverData = FindDataAtHoverDate(data)
             return yScaleSM(hoverData.moving_avg) - textOffsetY
         })
         .html(function (data) {
-            const hoverData = data.values.find(element => element.date === selectedDate)
+            const hoverData = FindDataAtHoverDate(data)
             return parseInt(hoverData.moving_avg)
         })
 
     d3.selectAll('.hover-text-bg')
         .attr('x', function (data) {
-            const hoverData = data.values.find(element => element.date === selectedDate)
+            const hoverData = FindDataAtHoverDate(data)
             const xPos = xScaleSM(new Date(hoverData.date))
             if (xPos > SM_WIDTH / 2) {
                 return xPos - 4 * textOffsetX
@@ -675,7 +695,7 @@ function UpdateHoverSMViz () {
             }
         })
         .attr('y', function (data) {
-            const hoverData = data.values.find(element => element.date === selectedDate)
+            const hoverData = FindDataAtHoverDate(data)
             return yScaleSM(hoverData.moving_avg) - textOffsetY - 25
         })
 }
@@ -690,15 +710,20 @@ function UpdateHoverCovid () {
     var attribute = SELECTOR_TO_ATTR[selection]
 
     d3.select('.hover-circle_covid')
-        .attr('cx', data => xScaleCov(new Date(data.find(element => element.date === selectedDate).date)))
-        .attr('cy', data => yScaleCov(data.find(element => element.date === selectedDate)[attribute]))
+        .attr('cx', xScaleCov(new Date(selectedDate)))
+        .attr('cy', function (data) {
+            const dataElement = data.find(element => element.date === selectedDate)
+            if (dataElement === undefined) {
+                return yScaleCov(data[0][attribute])
+            }
+            return yScaleCov(dataElement[attribute])
+        })
     const textOffsetX = 10
     const textOffsetY = 20
 
     d3.selectAll('.hover-text_covid')
-        .attr('x', function (data) {
-            const hoverData = data.find(element => element.date === selectedDate)
-            const xPos = xScaleCov(new Date(hoverData.date))
+        .attr('x', function () {
+            const xPos = xScaleCov(new Date(selectedDate))
             if (xPos > SM_WIDTH / 2) {
                 return xPos - 4 * textOffsetX
             } else {
@@ -706,12 +731,42 @@ function UpdateHoverCovid () {
             }
         })
         .attr('y', function (data) {
-            const hoverData = data.find(element => element.date === selectedDate)
+            let hoverData = data.find(element => element.date === selectedDate)
+            if (hoverData === undefined) {
+                hoverData = data[0]
+            }
             return yScaleCov(hoverData[attribute]) - textOffsetY
         })
         .html(function (data) {
-            const hoverData = data.find(element => element.date === selectedDate)
+            let hoverData = data.find(element => element.date === selectedDate)
+            if (hoverData === undefined) {
+                hoverData = data[0]
+            }
             return Math.round(hoverData[attribute])
+        })
+
+        d3.selectAll('.hover-date_covid')
+        .attr('x', function () {
+            const xPos = xScaleCov(new Date(selectedDate))
+            if (xPos > SM_WIDTH / 2) {
+                return xPos - 4 * textOffsetX
+            } else {
+                return xPos + textOffsetX
+            }
+        })
+        .attr('y', function (data) {
+            let hoverData = data.find(element => element.date === selectedDate)
+            if (hoverData === undefined) {
+                hoverData = data[0]
+            }
+            return yScaleCov(hoverData[attribute]) - 2 * textOffsetY
+        })
+        .html(function (data) {
+            let hoverData = data.find(element => element.date === selectedDate)
+            if (hoverData === undefined) {
+                hoverData = data[0]
+            }
+            return ToNiceString(hoverData.date)
         })
 }
 
@@ -719,16 +774,21 @@ function UpdateHoverCovid () {
  * @param opacity
  */
 function ShowHoverTextAndCircles (opacity) {
-    d3.selectAll('.hover-text').style('opacity', opacity)
-    d3.selectAll('.hover-text-bg').style('opacity', opacity)
+    ShowHoverTextAndCirclesSM(opacity)
     d3.selectAll('.hover-x-axis-line').style('opacity', opacity)
-    d3.selectAll('.hover-circle').style('opacity', opacity)
     d3.selectAll('.hover-text_covid').style('opacity', opacity)
+    d3.selectAll('.hover-date_covid').style('opacity', opacity)
     d3.selectAll('.hover-circle_covid').style('opacity', opacity)
 
     if (opacity === 0) {
         d3.select('#hover-date').text('hovered date:')
     }
+}
+
+function ShowHoverTextAndCirclesSM (opacity) {
+    d3.selectAll('.hover-text').style('opacity', opacity)
+    d3.selectAll('.hover-text-bg').style('opacity', opacity)
+    d3.selectAll('.hover-circle').style('opacity', opacity)
 }
 
 // Draw global sport viz
@@ -739,4 +799,20 @@ function ShowHoverTextAndCircles (opacity) {
  */
 export function DrawGlobalSport (data, startDate, endDate) {
     const svg = d3.select('#global-sport-svg')
+}
+
+/**
+ * @param dateString
+ */
+function ToNiceString (dateString) {
+    const d = new Date(dateString)
+    return d.getDay() + 1 + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear()
+}
+
+function FindDataAtHoverDate (data) {
+    const hoverData = data.values.find(element => element.date === selectedDate)
+    if (hoverData === undefined) {
+        return data.values[0]
     }
+    return hoverData
+}
