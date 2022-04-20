@@ -22,6 +22,13 @@ var FIRST_INS_DATE = new Date('2020-06-22')
 var LAST_INS_DATE = new Date('2022-02-12')
 var dateRange = [FIRST_INS_DATE, LAST_INS_DATE]
 
+const closedGymDates = [
+    { start: new Date('2020-03-15'), end: new Date('2020-06-21') },
+    { start: new Date('2020-10-08'), end: new Date('2021-03-21') },
+    { start: new Date('2021-04-08'), end: new Date('2021-06-06') },
+    { start: new Date('2021-12-20'), end: new Date('2022-02-13') }
+]
+
 const MIN_DATE_SELECTION_DAYS = 30
 
 const MIN_VISIT_THRESHOLD = 250
@@ -39,7 +46,6 @@ var yScaleCov
 
 var covid_data_selected = 'cases'
 
-
 var showAll = false
 
 /**
@@ -47,17 +53,31 @@ var showAll = false
  * @param startDate
  * @param endDate
  */
-export function DrawCount(data, startDate, endDate) {
+export function DrawCountAndBindDataToCounter (data) {
+    d3.select('#training-count').datum(data)
+    UpdateMainTrainingSavedCounter()
+}
+
+/**
+ *
+ */
+function UpdateMainTrainingSavedCounter () {
+    const data = d3.select('#training-count').data()[0]
     let saved = 0
     let total = 0
     data.forEach(element => {
-        total += Number(element.athletes)
-        if (startDate <= element.date && element.date <= endDate) {
-            saved += Number(element.athletes)
+        const d = new Date(element.date)
+        if (dateRange[0] < d && d < new Date(dateRange[1])) {
+            total += Number(element.athletes)
+            closedGymDates.forEach(function (date) {
+                if (date.start < d && d < date.end) {
+                    saved += Number(element.athletes)
+                }
+            })
         }
     })
-    d3.select('#training-count').text(saved)
-    d3.select('#total-training-count').text(`sur ${total}`)
+    d3.select('#training-count').datum(data).text(saved)
+    d3.select('#total-training-count').datum(data).text(`sur ${total}`)
 }
 
 /**
@@ -65,21 +85,42 @@ export function DrawCount(data, startDate, endDate) {
  */
 
 const SELECTOR_TO_ATTR = {
-    'cases': 'cases_moving_avg',
-    'deaths': 'death_moving_avg',
-    'hospitalisations': 'hospi_moving_avg'
+    cases: 'cases_moving_avg',
+    deaths: 'death_moving_avg',
+    hospitalisations: 'hospi_moving_avg'
 }
 
-function OnGymClosedHover(rect, opacity) {
+/**
+ * @param rect
+ * @param opacity
+ */
+function OnGymClosedHover (rect, opacity) {
     d3.select(rect).attr('opacity', opacity)
 }
 
 /**
+ * @param closingDates
+ */
+function OnGymClosedClick (closingPeriod) {
+    if (closingPeriod.end < FIRST_INS_DATE || closingPeriod.start > LAST_INS_DATE) {
+        console.log('no INS data for this closing time period')
+        return
+    }
+    // keep the selected time range valid
+    const validStartDate = closingPeriod.start > FIRST_INS_DATE ? closingPeriod.start : FIRST_INS_DATE
+    const validEndDate = closingPeriod.end < LAST_INS_DATE ? closingPeriod.end : LAST_INS_DATE
+
+    dateRange = [validStartDate, validEndDate]
+    TimeWindowChange()
+}
+
+/**
  * @param data
+ * @param dataFermetures
  * @param startDate
  * @param endDate
  */
-export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
+export function DrawCovidViz (data) {
     var svg = d3.select('#covid-svg')
         .append('svg')
         .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
@@ -112,7 +153,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .attr('color', GRIDLINE_COLOR)
         .attr('stroke-width', GRIDLINE_STROKE_WIDTH)
         .call(yAxisGrid)
-        .call(g => g.select(".domain").remove());
+        .call(g => g.select('.domain').remove())
 
     // Add the cases line
     var line = svg.append('path')
@@ -151,18 +192,18 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     svg.append('g')
         .classed('fermetures_gym', true)
         .selectAll('rect')
-        .data(dataFermetures)
+        .data(closedGymDates)
         .enter()
         .append('rect')
         .attr('x', element => xScaleCov(element.start))
         .attr('y', COVID_HEIGHT + 1)
         .attr('width', element => xScaleCov(element.end) - xScaleCov(element.start))
         .attr('height', 8)
-        .attr('fill', 'yellow')
+        .attr('fill', 'black')
         .attr('opacity', 0.35)
-        .on('mouseover', function () { OnGymClosedHover(this, 0.85) })
-        .on('mouseout', function () { OnGymClosedHover(this, 0.35) })
-        .on('mousedown', function () { console.log("gym closed")})
+        .on('mouseover', function () { OnGymClosedHover(this, 0.8) })
+        .on('mouseout', function () { OnGymClosedHover(this, 0.5) })
+        .on('mousedown', function (dates) { OnGymClosedClick(dates) })
 
     // Event listeners
     svg.append('rect')
@@ -179,7 +220,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         .on('mousedown', function (d) { mousedown(this, d) })
         .on('mouseup', mouseup)
 
-    // ceate time windows
+    // create time windows
     svg.append('rect')
         .style('pointer-events', 'none')
         .style('fill', GRIDLINE_COLOR)
@@ -201,7 +242,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
     /**
      *
      */
-    function mouseover() {
+    function mouseover () {
         ShowHoverTextAndCircles(1)
     }
 
@@ -209,7 +250,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
      * @param rect
      * @param d
      */
-    function mousemove(rect) {
+    function mousemove (rect) {
         // recover coordinate we need
         var dateOfMousPos = xScaleCov.invert(d3.mouse(rect)[0])
         selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
@@ -220,21 +261,33 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
         }
     }
 
-    function mouseout() {
+    /**
+     *
+     */
+    function mouseout () {
         ShowHoverTextAndCircles(0)
         isMouseDown = false
     }
 
-    function mouseup() {
+    /**
+     *
+     */
+    function mouseup () {
         isMouseDown = false
     }
-    function mousedown(rect) {
+    /**
+     * @param rect
+     */
+    function mousedown (rect) {
         var dateOfMousPos = xScaleCov.invert(d3.mouse(rect)[0])
         mousedownDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
         isMouseDown = true
     }
 
-    function updateSelection() {
+    /**
+     *
+     */
+    function updateSelection () {
         var selector = document.getElementById('covid_data_select')
         var selection = selector.options[selector.selectedIndex].value
 
@@ -263,7 +316,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
             .call(d3.axisLeft(yScaleCov))
     }
 
-    d3.select("#covid_data_select").on("change", updateSelection)
+    d3.select('#covid_data_select').on('change', updateSelection)
 }
 
 /**
@@ -271,7 +324,7 @@ export function DrawCovidViz(data, dataFermetures, startDate, endDate) {
  * @param startDate
  * @param endDate
  */
-export function DrawSmallMultiple(data, startDate, endDate) {
+export function DrawSmallMultiple (data) {
     // group the data: I want to draw one line per group
     var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
         .key(function (d) { return d.sport })
@@ -334,11 +387,14 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('color', GRIDLINE_COLOR)
         .attr('stroke-width', GRIDLINE_STROKE_WIDTH)
         .call(yAxisGrid)
-        .call(g => g.select(".domain").remove());
+        .call(g => g.select('.domain').remove())
 
     // Draw the line
-    function filterDateString(d) {
-        var date = new Date(d.date);
+    /**
+     * @param d
+     */
+    function filterDateString (d) {
+        var date = new Date(d.date)
         return dateRange[0] <= date & date <= dateRange[1]
     }
     svg.append('path')
@@ -395,12 +451,11 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('alignment-baseline', 'middle')
         .style('font-weight', 'bold')
 
-
     // What happens when the mouse move -> show the annotations at the right positions.
     /**
      *
      */
-    function mouseover() {
+    function mouseover () {
         ShowHoverTextAndCircles(1)
         UpdateSavedTraining(data)
     }
@@ -409,7 +464,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
      * @param rect
      * @param d
      */
-    function mousemove(rect) {
+    function mousemove (rect) {
         // recover coordinate we need
         var dateOfMousPos = xScaleSM.invert(d3.mouse(rect)[0])
         selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
@@ -419,7 +474,7 @@ export function DrawSmallMultiple(data, startDate, endDate) {
     /**
      *
      */
-    function mouseout() {
+    function mouseout () {
         ShowHoverTextAndCircles(0)
     }
 
@@ -435,14 +490,14 @@ export function DrawSmallMultiple(data, startDate, endDate) {
 
     // Add counter
     svg.append('text')
-        .attr('id', function (d) { return `${d.key}-counter`.replace(/ /g,'') })
+        .attr('id', function (d) { return `${d.key}-counter`.replace(/ /g, '') })
         .attr('text-anchor', 'start')
         .attr('y', -10)
         .attr('x', SM_WIDTH - 28)
         .attr('font-size', 10)
         .classed('sm-title', true)
         .classed('counter', true)
-        .text("x") 
+        .text('x')
 
     // Add subtitle
     svg.append('text')
@@ -451,40 +506,44 @@ export function DrawSmallMultiple(data, startDate, endDate) {
         .attr('x', SM_WIDTH - MARGIN.right - MARGIN.left - 16)
         .attr('font-size', 10)
         .classed('sm-title', true)
-        .text("entraîn. sauvés")
+        .text('entraîn. sauvés')
 
     UpdateSavedTraining(data)
 
     d3.select('button').on('click', () => ShowButton(data))
 }
 
-function UpdateSavedTraining(data){
-    let minDate = d3.min(xScaleSM.ticks())
-    let minDateFormatted = `${minDate.getFullYear()}-${String(minDate.getMonth() + 1).padStart(2, '0')}-${String(minDate.getDate()).padStart(2, '0')}`
-
-    let maxDate = d3.max(xScaleSM.ticks())
-    let maxDateFormatted = `${maxDate.getFullYear()}-${String(maxDate.getMonth() + 1).padStart(2, '0')}-${String(maxDate.getDate()).padStart(2, '0')}`
-
-    let sport_dict = {}
+/**
+ * @param data
+ */
+function UpdateSavedTraining (data) {
+    const sport_dict = {}
     data.forEach(element => {
        if (!sport_dict[element.sport]) {
            sport_dict[element.sport] = 0
        }
     })
     data.forEach(element => {
-        if (minDateFormatted <= element.date && element.date <= maxDateFormatted ) { 
-            sport_dict[element.sport] += Number(element.athletes)
+        const d = new Date(element.date)
+        if (dateRange[0] <= d && d <= dateRange[1]) {
+            closedGymDates.forEach(function (date) {
+                if (date.start < d && d < date.end) {
+                    sport_dict[element.sport] += Number(element.athletes)
+                }
+            })
             }
         })
-    
-    for (const [key,value] of Object.entries(sport_dict)){
-        d3.select(`#${key.replace(/ /g,'')}-counter`).text("")
-        d3.select(`#${key.replace(/ /g,'')}-counter`).text(value)
+
+    for (const [key, value] of Object.entries(sport_dict)) {
+        d3.select(`#${key.replace(/ /g, '')}-counter`).text('')
+        d3.select(`#${key.replace(/ /g, '')}-counter`).text(value)
     }
 }
 
-
-function ShowButton(data) {
+/**
+ * @param data
+ */
+function ShowButton (data) {
     showAll = !showAll
     if (showAll) {
         d3.select('button').text('Cacher')
@@ -498,13 +557,16 @@ function ShowButton(data) {
 /**
  *
  */
-function UpdateHover() {
+function UpdateHover () {
     d3.select('#hover-date').text('hovered date: ' + selectedDate)
     UpdateHoverSMViz()
     UpdateHoverCovid()
 }
 
-function UpdateTimeWindow() {
+/**
+ *
+ */
+function UpdateTimeWindow () {
     var a = new Date(mousedownDate)
     var b = new Date(selectedDate)
     var leftDate = a < b ? a : b
@@ -519,16 +581,27 @@ function UpdateTimeWindow() {
 
     dateRange = [leftDate, rightDate]
 
-    d3.select('.time-window-left')
-        .attr('width', xScaleCov(leftDate))
-    d3.select('.time-window-right')
-        .attr('x', xScaleCov(rightDate))
-        .attr('width', COVID_WIDTH - xScaleCov(rightDate))
-
-    UpdateTimeSM()
+    TimeWindowChange()
 }
 
-function UpdateTimeSM() {
+/**
+ *
+ */
+function TimeWindowChange () {
+    d3.select('.time-window-left')
+    .attr('width', xScaleCov(dateRange[0]))
+    d3.select('.time-window-right')
+        .attr('x', xScaleCov(dateRange[1]))
+        .attr('width', COVID_WIDTH - xScaleCov(dateRange[1]))
+
+    UpdateTimeSM()
+    UpdateMainTrainingSavedCounter()
+}
+
+/**
+ *
+ */
+function UpdateTimeSM () {
     // update xScale
     xScaleSM.domain(dateRange)
 
@@ -539,7 +612,10 @@ function UpdateTimeSM() {
         .call(d3.axisBottom(xScaleSM).ticks(2))
 
     // update line
-    function filterDateString(d) {
+    /**
+     * @param d
+     */
+    function filterDateString (d) {
         var date = new Date(d.date)
         return dateRange[0] <= date & date <= dateRange[1]
     }
@@ -550,14 +626,13 @@ function UpdateTimeSM() {
                 .x(function (d) { return xScaleSM(new Date(d.date)) })
                 .y(function (d) { return yScaleSM(+d.moving_avg) })
                 (d.values.filter((d) => filterDateString(d)))
-        })  
+        })
 }
-
 
 /**
  *
  */
-function UpdateHoverSMViz() {
+function UpdateHoverSMViz () {
         d3.selectAll('.hover-circle')
             .attr('cx', data => xScaleSM(new Date(data.values.find(element => element.date === selectedDate).date)))
             .attr('cy', data => yScaleSM(data.values.find(element => element.date === selectedDate).moving_avg))
@@ -603,14 +678,12 @@ function UpdateHoverSMViz() {
             const hoverData = data.values.find(element => element.date === selectedDate)
             return yScaleSM(hoverData.moving_avg) - textOffsetY - 25
         })
-
 }
 
 /**
  *
  */
-function UpdateHoverCovid() {
-
+function UpdateHoverCovid () {
     var selector = document.getElementById('covid_data_select')
     var selection = selector.options[selector.selectedIndex].value
 
@@ -640,14 +713,12 @@ function UpdateHoverCovid() {
             const hoverData = data.find(element => element.date === selectedDate)
             return Math.round(hoverData[attribute])
         })
-
-
 }
 
 /**
  * @param opacity
  */
-function ShowHoverTextAndCircles(opacity) {
+function ShowHoverTextAndCircles (opacity) {
     d3.selectAll('.hover-text').style('opacity', opacity)
     d3.selectAll('.hover-text-bg').style('opacity', opacity)
     d3.selectAll('.hover-x-axis-line').style('opacity', opacity)
@@ -661,7 +732,11 @@ function ShowHoverTextAndCircles(opacity) {
 }
 
 // Draw global sport viz
-export function DrawGlobalSport(data, startDate, endDate){
-    let svg = d3.select("#global-sport-svg")
-
+/**
+ * @param data
+ * @param startDate
+ * @param endDate
+ */
+export function DrawGlobalSport (data, startDate, endDate) {
+    const svg = d3.select('#global-sport-svg')
     }
