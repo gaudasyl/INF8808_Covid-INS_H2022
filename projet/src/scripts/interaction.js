@@ -8,11 +8,11 @@ import * as smallMultiples from './smallMultiples'
  */
 export function UpdateHover () {
   d3.select('#hover-date').text('hovered date: ' + selectedDate)
+  ShowHoverTextAndCircles(1)
   UpdateHoverCovid()
   const hoverDate = new Date(selectedDate)
   // check if the selectedDate is in the selectedTime Window (if not we don't updateHover for SM viz)
   if (hoverDate >= dateRange[0] && hoverDate <= dateRange[1]) {
-    ShowHoverTextAndCirclesSM(1)
     smallMultiples.UpdateHoverSMViz()
   } else {
     ShowHoverTextAndCirclesSM(0)

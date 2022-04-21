@@ -65,10 +65,57 @@ main {
     color: white;
     font-size: larger;
     font-weight: bold;
-    
 }
 
 .button:hover {
     background-color: #8e8729;
     color: white;
+}
+
+#help-button {
+    position: fixed;
+    top: 2em;
+    right: 2em;
+    font-size: medium;
+    padding: 2px 5px; 
+    margin: 0;
+    background-color: #e65140;
+}
+
+#help-button:hover {
+    position: fixed;
+    top: 2em;
+    right: 2em;
+    font-size: medium;
+    padding: 2px 5px; 
+    margin: 0;
+    background-color: #a93427;
+}
+
+#help-pop-up {
+    position: absolute;
+    width: 40%;
+    height: 40%;
+    left: 30%;
+    top: 30%;
+    border-width: 1px;
+    border-radius: 2em;
+    padding: 1em;
+    background-color: #e65140c5;
+    color: white;
+    font-weight: bold;
+    visibility: hidden;
+}
+
+#help-pop-up .visible {
+    visibility: visible;
+}
+
+#close-button {
+    background-color: rgb(108, 131, 149);
+    color: white
+}
+
+#close-button:hover {
+    background-color: rgb(86, 105, 123) ;
 }

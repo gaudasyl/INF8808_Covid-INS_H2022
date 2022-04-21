@@ -187,7 +187,7 @@ export function DrawSMViz (data) {
     .classed('sm-title', true)
     .text('entraîn. sauvés')
 
-  d3.select('button').on('click', () => ShowButton(data))
+  d3.select('#show-more').on('click', () => ShowButton(data))
 }
 
 /**
@@ -270,9 +270,9 @@ export function UpdateTimeSM () {
 function ShowButton (data) {
   showAll = !showAll
   if (showAll) {
-    d3.select('button').text('Cacher')
+    d3.select('#show-more').text('Cacher')
   } else {
-    d3.select('button').text('Tout Montrer')
+    d3.select('#show-more').text('Tout Montrer')
   }
   d3.select('#smallMultiple-svg').selectAll('svg').remove()
   DrawSMViz(data)
