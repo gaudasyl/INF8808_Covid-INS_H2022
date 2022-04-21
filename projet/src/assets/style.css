@@ -77,7 +77,7 @@ main {
     top: 2em;
     right: 2em;
     font-size: medium;
-    padding: 2px 5px; 
+    padding: 2px 5px;
     margin: 0;
     background-color: #e65140;
 }
@@ -87,7 +87,7 @@ main {
     top: 2em;
     right: 2em;
     font-size: medium;
-    padding: 2px 5px; 
+    padding: 2px 5px;
     margin: 0;
     background-color: #a93427;
 }
@@ -117,5 +117,5 @@ main {
 }
 
 #close-button:hover {
-    background-color: rgb(86, 105, 123) ;
+    background-color: rgb(86, 105, 123);
 }

@@ -36,10 +36,28 @@ export function DrawCovidViz(data, closedGymDates) {
     .append('svg')
     .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
     .attr('height', COVID_HEIGHT + MARGIN.top + MARGIN.bottom)
-    .style('margin-bottom', '20px')
+    // .style('margin-bottom', '50px')
     .append('g')
     .attr('transform',
       'translate(' + MARGIN.left + ',' + MARGIN.top + ')')
+
+  // Add Legend
+  var legend = d3.select('#covid-svg').append('svg')
+    .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
+    .attr('height', 50)
+  legend.append('rect')
+    .attr('x', COVID_WIDTH - 220)
+    .attr('y', 10)
+    .attr('width', 20)
+    .attr('height', 20)
+    .style('fill', '#d6ca2f')
+  legend.append('text')
+    .attr('x', COVID_WIDTH - 190)
+    .attr('y', 25)
+    .attr('width', 20)
+    .attr('height', 20)
+    .style('fill', '#6F6924')
+    .text('Période de Gyms Publics Fermés')
 
   // Add X axis --> it is a date format
   xScaleCov = d3.scaleTime()
