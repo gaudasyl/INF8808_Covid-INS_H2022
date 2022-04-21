@@ -65,11 +65,13 @@ main {
     color: white;
     font-size: larger;
     font-weight: bold;
+
 }
 
 .button:hover {
     background-color: #8e8729;
     color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #help-button {
@@ -99,12 +101,13 @@ main {
     left: 30%;
     top: 30%;
     border-width: 1px;
-    border-radius: 2em;
+    border-radius: 5px;
     padding: 1em;
-    background-color: #e65140c5;
+    background-color: #e65140;
     color: white;
     font-weight: bold;
     visibility: hidden;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #help-pop-up .visible {
@@ -118,4 +121,30 @@ main {
 
 #close-button:hover {
     background-color: rgb(86, 105, 123);
+}
+
+#total-training-count {
+    font-weight: bold;
+    text-align: right;
+}
+
+#training-count {
+    font-size: 80px;
+    font-weight: bold;
+    text-align: right;
+    margin-bottom: 0px;
+}
+
+#count-title {
+    text-align: right;
+    padding-left: 150px;
+}
+
+#count-svg {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.global-sm {
+    padding-left: 150px;
 }

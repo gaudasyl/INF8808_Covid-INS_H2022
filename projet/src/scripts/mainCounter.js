@@ -44,9 +44,14 @@ export function Update(dateRange) {
     total += value.total
     saved += value.saved
     d3.select(`#${key.replace(/ /g, '')}-counter`).text('')
-    d3.select(`#${key.replace(/ /g, '')}-counter`).text(value.saved)
+    d3.select(`#${key.replace(/ /g, '')}-counter`).text(numberWithSpaces(value.saved))
   }
 
-  d3.select('#training-count').datum(data).text(saved)
-  d3.select('#total-training-count').datum(data).text(`sur ${total}`)
+  d3.select('#training-count').datum(data).text(numberWithSpaces(saved))
+  d3.select('#total-training-count').datum(data).text(`sur ${numberWithSpaces(total)}`)
+}
+
+function numberWithSpaces(x) {
+  // https://stackoverflow.com/questions/16637051/adding-space-between-numbers
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
