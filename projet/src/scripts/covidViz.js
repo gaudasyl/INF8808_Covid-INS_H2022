@@ -31,11 +31,12 @@ const SELECTOR_TO_ATTR = {
  * @param endDate
  * @param closedGymDates
  */
-export function DrawCovidViz (data, closedGymDates) {
+export function DrawCovidViz(data, closedGymDates) {
   var svg = d3.select('#covid-svg')
     .append('svg')
     .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
     .attr('height', COVID_HEIGHT + MARGIN.top + MARGIN.bottom)
+    .style('margin-bottom', '20px')
     .append('g')
     .attr('transform',
       'translate(' + MARGIN.left + ',' + MARGIN.top + ')')
@@ -46,7 +47,7 @@ export function DrawCovidViz (data, closedGymDates) {
     .range([0, COVID_WIDTH])
   svg.append('g')
     .attr('class', 'x-axis')
-    .attr('transform', 'translate(0,' + COVID_HEIGHT + ')')
+    .attr('transform', 'translate(0,' + (Number(COVID_HEIGHT) + 9).toString() + ')')
     .call(d3.axisBottom(xScaleCov))
 
   // Add Y axis
@@ -120,8 +121,8 @@ export function DrawCovidViz (data, closedGymDates) {
     .attr('y', COVID_HEIGHT + 1)
     .attr('width', element => xScaleCov(element.end) - xScaleCov(element.start))
     .attr('height', 8)
-    .attr('fill', 'black')
-    .attr('opacity', 0.35)
+    .attr('fill', '#d6ca2f')
+    .attr('opacity', 0.55)
     .on('mouseover', function () { OnGymClosedHover(this, 0.8) })
     .on('mouseout', function () { OnGymClosedHover(this, 0.5) })
     .on('mousedown', function (dates) { OnGymClosedClick(dates) })
@@ -148,7 +149,7 @@ export function DrawCovidViz (data, closedGymDates) {
    * @param rect
    * @param d
    */
-  function mousemove (rect) {
+  function mousemove(rect) {
     // recover coordinate we need
     var dateOfMousPos = xScaleCov.invert(d3.mouse(rect)[0])
     selectedDate = `${dateOfMousPos.getFullYear()}-${String(dateOfMousPos.getMonth() + 1).padStart(2, '0')}-${String(dateOfMousPos.getDate()).padStart(2, '0')}`
@@ -161,7 +162,7 @@ export function DrawCovidViz (data, closedGymDates) {
   /**
    * @param rect
    */
-  function mousedown (rect) {
+  function mousedown(rect) {
     var dateOfMousPos = xScaleCov.invert(d3.mouse(rect)[0])
     if (dateOfMousPos < FIRST_INS_DATE) {
       dateOfMousPos = FIRST_INS_DATE
@@ -191,7 +192,7 @@ export function DrawCovidViz (data, closedGymDates) {
   /**
    *
    */
-  function updateSelection () {
+  function updateSelection() {
     var selector = document.getElementById('covid_data_select')
     var selection = selector.options[selector.selectedIndex].value
 
@@ -227,7 +228,7 @@ export function DrawCovidViz (data, closedGymDates) {
  * @param rect
  * @param opacity
  */
-function OnGymClosedHover (rect, opacity) {
+function OnGymClosedHover(rect, opacity) {
   d3.select(rect).attr('opacity', opacity)
 }
 
@@ -235,7 +236,7 @@ function OnGymClosedHover (rect, opacity) {
  * @param closingDates
  * @param closingPeriod
  */
-function OnGymClosedClick (closingPeriod) {
+function OnGymClosedClick(closingPeriod) {
   if (closingPeriod.end < FIRST_INS_DATE || closingPeriod.start > LAST_INS_DATE) {
     console.log('no INS data for this closing time period')
     return
@@ -251,7 +252,7 @@ function OnGymClosedClick (closingPeriod) {
 /**
  *
  */
-function UpdateTimeWindow () {
+function UpdateTimeWindow() {
   var a = new Date(mousedownDate)
   var b = new Date(selectedDate)
   var leftDate = a < b ? a : b
@@ -269,7 +270,7 @@ function UpdateTimeWindow () {
   interaction.TimeWindowChange()
 }
 
-export function UpdateTimeCovid () {
+export function UpdateTimeCovid() {
   d3.select('.time-window-left')
     .attr('width', xScaleCov(dateRange[0]))
   d3.select('.time-window-right')
@@ -280,7 +281,7 @@ export function UpdateTimeCovid () {
 /**
  *
  */
-export function UpdateHoverCovid () {
+export function UpdateHoverCovid() {
   var selector = document.getElementById('covid_data_select')
   var selection = selector.options[selector.selectedIndex].value
 
@@ -355,6 +356,6 @@ export function UpdateHoverCovid () {
     })
 }
 
-export function ChangeSelectedDate (newDate) {
+export function ChangeSelectedDate(newDate) {
   selectedDate = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')}`
 }
