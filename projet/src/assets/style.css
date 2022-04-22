@@ -97,13 +97,13 @@ main {
 #help-pop-up {
     position: absolute;
     width: 40%;
-    height: 40%;
+    height: 320px;
     left: 30%;
     top: 30%;
     border-width: 1px;
     border-radius: 5px;
     padding: 1em;
-    background-color: #e65140;
+    background-color: #c94233;
     color: white;
     font-weight: bold;
     visibility: hidden;
@@ -116,7 +116,7 @@ main {
 
 #close-button {
     background-color: rgb(108, 131, 149);
-    color: white
+    color: white;
 }
 
 #close-button:hover {
