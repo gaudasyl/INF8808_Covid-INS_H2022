@@ -18,19 +18,32 @@ const closedGymDates = [
 document.getElementById('help-button').onclick = togglePopUp
 document.getElementById('close-button').onclick = togglePopUp;
 
-(function (d3) {
-    d3.csv('./moving_avg_dataset.csv').then(function (data) {
-        viz.DrawGlobalSport(data)
-        viz.DrawSmallMultiple(data, closedGymDates)
-        viz.DrawCountAndBindDataToCounter(data, closedGymDates)
-    })
+if (getCookie('TOKEN') == 'TEST') {
+    (function (d3) {
+        d3.csv('./moving_avg_dataset.csv').then(function (data) {
+            viz.DrawGlobalSport(data)
+            viz.DrawSmallMultiple(data, closedGymDates)
+            viz.DrawCountAndBindDataToCounter(data, closedGymDates)
+        })
 
-    d3.csv('./merged_covid_dataset.csv').then((data) => {
-        viz.DrawCovidViz(data, closedGymDates)
-    })
-})(d3)
+        d3.csv('./merged_covid_dataset.csv').then((data) => {
+            viz.DrawCovidViz(data, closedGymDates)
+        })
+    })(d3)
+}
 
 function togglePopUp() {
     var popup = document.getElementById('help-pop-up')
     popup.classList.toggle('visible')
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
 }
