@@ -4,6 +4,7 @@ import { MARGIN, GRIDLINE_COLOR, GRIDLINE_STROKE_WIDTH, LINE_COLOR, textOffsetX,
 import { dateRange, ChangeSelectedDate } from './covidViz'
 import * as helper from './helper'
 import * as interaction from './interaction'
+import { Update } from './mainCounter'
 
 const SM_WIDTH = 275 - MARGIN.left - MARGIN.right
 const SM_HEIGHT = 275 - MARGIN.top - MARGIN.bottom
@@ -21,7 +22,7 @@ var showAll = false
 /**
  * @param data
  */
-export function DrawSMViz (data) {
+export function DrawSMViz(data) {
   // group the data: I want to draw one line per group
   var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
     .key(function (d) { return d.sport })
@@ -31,7 +32,7 @@ export function DrawSMViz (data) {
   sumstat.sort(
     (a, b) =>
       d3.sum(a.values.map(o => o.moving_avg)) -
-            d3.sum(b.values.map(o => o.moving_avg))
+      d3.sum(b.values.map(o => o.moving_avg))
   ).reverse()
 
   // Limit minimum number of visits
@@ -90,7 +91,7 @@ export function DrawSMViz (data) {
   /**
    * @param d
    */
-  function filterDateString (d) {
+  function filterDateString(d) {
     var date = new Date(d.date)
     return dateRange[0] <= date & date <= dateRange[1]
   }
@@ -120,7 +121,7 @@ export function DrawSMViz (data) {
   /**
    * @param rect
    */
-  function mousemove (rect) {
+  function mousemove(rect) {
     // recover coordinate we need
     var dateOfMousPos = xScaleSM.invert(d3.mouse(rect)[0])
     ChangeSelectedDate(dateOfMousPos)
@@ -193,7 +194,7 @@ export function DrawSMViz (data) {
 /**
  *
  */
-export function UpdateHoverSMViz () {
+export function UpdateHoverSMViz() {
   d3.selectAll('.hover-circle')
     .attr('cx', data => xScaleSM(new Date(helper.FindDataAtHoverDate(data).date)))
     .attr('cy', data => yScaleSM(helper.FindDataAtHoverDate(data).moving_avg))
@@ -241,7 +242,7 @@ export function UpdateHoverSMViz () {
 /**
  *
  */
-export function UpdateTimeSM () {
+export function UpdateTimeSM() {
   // update xScale
   xScaleSM.domain(dateRange)
 
@@ -251,7 +252,7 @@ export function UpdateTimeSM () {
     .duration(5)
     .call(d3.axisBottom(xScaleSM).ticks(2))
 
-  function filterDateString (d) {
+  function filterDateString(d) {
     var date = new Date(d.date)
     return dateRange[0] <= date & date <= dateRange[1]
   }
@@ -267,7 +268,7 @@ export function UpdateTimeSM () {
 /**
  * @param data
  */
-function ShowButton (data) {
+function ShowButton(data) {
   showAll = !showAll
   if (showAll) {
     d3.select('#show-more').text('Cacher')
@@ -276,4 +277,5 @@ function ShowButton (data) {
   }
   d3.select('#smallMultiple-svg').selectAll('svg').remove()
   DrawSMViz(data)
+  Update(dateRange)
 }
