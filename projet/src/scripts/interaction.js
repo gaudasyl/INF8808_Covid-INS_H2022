@@ -7,7 +7,6 @@ import * as smallMultiples from './smallMultiples'
  *
  */
 export function UpdateHover () {
-  d3.select('#hover-date').text('hovered date: ' + selectedDate)
   ShowHoverTextAndCircles(1)
   UpdateHoverCovid()
   const hoverDate = new Date(selectedDate)
@@ -38,9 +37,6 @@ export function ShowHoverTextAndCircles (opacity) {
   d3.selectAll('.hover-date_covid').style('opacity', opacity)
   d3.selectAll('.hover-circle_covid').style('opacity', opacity)
 
-  if (opacity === 0) {
-    d3.select('#hover-date').text('hovered date:')
-  }
 }
 
 /**

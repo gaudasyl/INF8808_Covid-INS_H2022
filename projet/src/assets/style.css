@@ -1,5 +1,5 @@
 main {
-    background-color: rgb(190, 188, 188);
+    background-color: rgb(245, 244, 244);
 }
 
 #main-container {
@@ -8,6 +8,19 @@ main {
 
 #count-title {
     font-size: small;
+}
+
+#selector-container {
+    text-align: right;
+}
+
+#explanations {
+    padding-left: 10%;
+    padding-top: 10%;
+    padding-right: 5%;
+    padding-bottom: 3%;
+    text-align: right;
+    font-weight: bold;
 }
 
 .x-axis .tick line,
@@ -42,7 +55,7 @@ main {
     padding-top: 20px;
     text-align: center;
     border-top-width: 4px;
-    border-color: rgb(190, 188, 188);
+    border-color: rgb(245, 244, 244);
     border-top-style: solid;
 }
 
@@ -95,7 +108,7 @@ main {
 }
 
 #help-pop-up {
-    position: absolute;
+    position: fixed;
     width: 40%;
     height: 320px;
     left: 30%;
@@ -143,8 +156,4 @@ main {
 #count-svg {
     margin-left: auto;
     margin-right: 0;
-}
-
-.global-sm {
-    padding-left: 150px;
 }

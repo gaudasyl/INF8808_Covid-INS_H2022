@@ -19,14 +19,14 @@
       <button id="help-button" class="button"> Méthodologie </button>
       <span id="help-pop-up">
         L'application web suivante est construite à partir des données de
-        fréquentation de l'Institut National du Sport.
+        fréquentation de l'Institut National du Sport et de l'INSQP.
         <br><br>
-        Notez qu'un sélection de date est faite en clicquant et déplaçant son curseur sur la visualisation des cas de
-        covid.
+        Vous pouvez sélectionner une date en cliquant et déplaçant votre curseur sur la visualisation des cas de
+        COVID-19. Les périodes de gyms publics fermés sont également cliquables.
         <br><br>
-        Une moyenne glissante sur 7 jours est utilisée pour lisser les graphiques de Covid et de fréquentation à l'INS.
+        Une moyenne glissante sur 7 jours est utilisée pour lisser les graphiques de cas de COVID-19 ainsi que la fréquentation de l'INS.
         <br>
-        <button id="close-button" class="button"> close </button>
+        <button id="close-button" class="button"> Fermer </button>
       </span>
       <div class="row">
         <div class="col-md-auto">
@@ -40,15 +40,19 @@
             </div>
           </div>
           <div class="row">
-            <div class="global-sm">
-              <p id="hover-date"></p>
-              <select id='covid_data_select'>
-                <option value='cases'>cases</option>
-                <option value='deaths'>deaths</option>
-                <option value='hospitalisations' ”>hospitalisations</option>
+            <div id="selector-container">
+              <span> Afficher la courbe des : </span>
+              <select id="covid_data_select">
+                <option value="cases"> Cas </option>
+                <option value="deaths"> Décès </option>
+                <option value="hospitalisations"> Hospitalisations </option>
               </select>
-              <div id="global-sport-svg"></div>
             </div>
+          </div>
+          <div class="row">
+            <div id="explanations" class="col">
+              L'ensemble des visualisations <br> offre un point de vue global sur <br>  l'apport de l'Institut National du Sport <br>  lors de la crise du COVID-19 au Québec.<br> 
+          </div>
           </div>
         </div>
         <div class="col">

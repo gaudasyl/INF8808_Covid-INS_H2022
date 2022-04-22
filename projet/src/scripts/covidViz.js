@@ -2,7 +2,7 @@ import { MARGIN, GRIDLINE_COLOR, GRIDLINE_STROKE_WIDTH, LINE_COLOR, textOffsetX,
 import * as helper from './helper'
 import * as interaction from './interaction'
 
-const COVID_WIDTH = 700 - MARGIN.left - MARGIN.right
+const COVID_WIDTH = 850 - MARGIN.left - MARGIN.right
 const COVID_HEIGHT = 400 - MARGIN.top - MARGIN.bottom
 const COVID_STROKE_WIDTH = 1.5
 
@@ -32,6 +32,12 @@ const SELECTOR_TO_ATTR = {
  * @param closedGymDates
  */
 export function DrawCovidViz(data, closedGymDates) {
+  // Add title
+  var title = d3.select("#covid-svg")
+    .append('text')
+    .style('fill', '#6F6924')
+    .text('Diagramme linéaire interactif de la situation du COVID-19')
+
   var svg = d3.select('#covid-svg')
     .append('svg')
     .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
@@ -40,7 +46,7 @@ export function DrawCovidViz(data, closedGymDates) {
     .append('g')
     .attr('transform',
       'translate(' + MARGIN.left + ',' + MARGIN.top + ')')
-
+     
   // Add Legend
   var legend = d3.select('#covid-svg').append('svg')
     .attr('width', COVID_WIDTH + MARGIN.left + MARGIN.right)
