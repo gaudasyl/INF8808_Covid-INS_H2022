@@ -9,7 +9,7 @@ var dataIdxByDate = {}
  * @param closedGymDates
  */
 export function DrawAndBindData(data, dateRange, closedGymDates) {
-  data = data.sort((a, b) => a.date > b.date)
+  data = data.sort((a, b) => new Date(a.date) - new Date(b.date))
   for (let i = 0; i < data.length; i++) {
     var date = data[i].date
     if (!(date in dataIdxByDate)) { dataIdxByDate[date] = i }
