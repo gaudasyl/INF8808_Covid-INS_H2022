@@ -110,14 +110,14 @@ main {
 #help-pop-up {
     position: fixed;
     width: 40%;
-    height: 320px;
+    height: 440px;
     left: 30%;
     top: 30%;
     border-width: 1px;
     border-radius: 5px;
     padding: 1em;
-    background-color: #c94233;
-    color: white;
+    background-color: rgb(245, 244, 244);
+    color: black;
     font-weight: bold;
     visibility: hidden;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
